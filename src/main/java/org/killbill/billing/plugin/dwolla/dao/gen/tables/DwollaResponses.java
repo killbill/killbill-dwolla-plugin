@@ -16,7 +16,7 @@ package org.killbill.billing.plugin.dwolla.dao.gen.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class DwollaResponses extends org.jooq.impl.TableImpl<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaResponsesRecord> {
 
-	private static final long serialVersionUID = -932120211;
+	private static final long serialVersionUID = -142855712;
 
 	/**
 	 * The reference instance of <code>killbill.dwolla_responses</code>
@@ -47,11 +47,6 @@ public class DwollaResponses extends org.jooq.impl.TableImpl<org.killbill.billin
 	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaResponsesRecord, java.lang.String> KB_PAYMENT_ID = createField("kb_payment_id", org.jooq.impl.SQLDataType.CHAR.length(36).nullable(false), this, "");
 
 	/**
-	 * The column <code>killbill.dwolla_responses.kb_payment_method_id</code>.
-	 */
-	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaResponsesRecord, java.lang.String> KB_PAYMENT_METHOD_ID = createField("kb_payment_method_id", org.jooq.impl.SQLDataType.CHAR.length(36).nullable(false), this, "");
-
-	/**
 	 * The column <code>killbill.dwolla_responses.kb_payment_transaction_id</code>.
 	 */
 	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaResponsesRecord, java.lang.String> KB_PAYMENT_TRANSACTION_ID = createField("kb_payment_transaction_id", org.jooq.impl.SQLDataType.CHAR.length(36).nullable(false), this, "");
@@ -70,6 +65,21 @@ public class DwollaResponses extends org.jooq.impl.TableImpl<org.killbill.billin
 	 * The column <code>killbill.dwolla_responses.currency</code>.
 	 */
 	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaResponsesRecord, java.lang.String> CURRENCY = createField("currency", org.jooq.impl.SQLDataType.CHAR.length(3), this, "");
+
+	/**
+	 * The column <code>killbill.dwolla_responses.transfer_id</code>.
+	 */
+	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaResponsesRecord, java.lang.String> TRANSFER_ID = createField("transfer_id", org.jooq.impl.SQLDataType.VARCHAR.length(256), this, "");
+
+	/**
+	 * The column <code>killbill.dwolla_responses.transfer_status</code>.
+	 */
+	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaResponsesRecord, java.lang.String> TRANSFER_STATUS = createField("transfer_status", org.jooq.impl.SQLDataType.VARCHAR.length(32), this, "");
+
+	/**
+	 * The column <code>killbill.dwolla_responses.error_codes</code>.
+	 */
+	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaResponsesRecord, java.lang.String> ERROR_CODES = createField("error_codes", org.jooq.impl.SQLDataType.VARCHAR.length(64), this, "");
 
 	/**
 	 * The column <code>killbill.dwolla_responses.additional_data</code>.

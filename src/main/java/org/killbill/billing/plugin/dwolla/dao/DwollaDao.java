@@ -17,23 +17,35 @@
 
 package org.killbill.billing.plugin.dwolla.dao;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Joiner;
+import io.swagger.client.model.Transfer;
 import org.joda.time.DateTime;
+import org.jooq.Configuration;
+import org.jooq.TransactionalRunnable;
 import org.jooq.impl.DSL;
+import org.killbill.billing.catalog.api.Currency;
+import org.killbill.billing.payment.api.TransactionType;
 import org.killbill.billing.plugin.dao.payment.PluginPaymentDao;
 import org.killbill.billing.plugin.dwolla.api.DwollaPaymentPluginApi;
 import org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaPaymentMethods;
 import org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaResponses;
+import org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaTokens;
 import org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaPaymentMethodsRecord;
 import org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaResponsesRecord;
+import org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaTokensRecord;
 
+import javax.annotation.Nullable;
 import javax.sql.DataSource;
+import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
+import static org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaResponses.DWOLLA_RESPONSES;
 
 public class DwollaDao extends PluginPaymentDao<DwollaResponsesRecord, DwollaResponses, DwollaPaymentMethodsRecord, DwollaPaymentMethods> {
 
@@ -44,7 +56,7 @@ public class DwollaDao extends PluginPaymentDao<DwollaResponsesRecord, DwollaRes
     private static final String FUNDING_SOURCE = "FUNDING_SOURCE";
 
     public DwollaDao(final DataSource dataSource) throws SQLException {
-        super(DwollaResponses.DWOLLA_RESPONSES, DwollaPaymentMethods.DWOLLA_PAYMENT_METHODS, dataSource);
+        super(DWOLLA_RESPONSES, DwollaPaymentMethods.DWOLLA_PAYMENT_METHODS, dataSource);
     }
 
     @Override
@@ -90,5 +102,103 @@ public class DwollaDao extends PluginPaymentDao<DwollaResponsesRecord, DwollaRes
                         return null;
                     }
                 });
+    }
+
+    public DwollaTokensRecord getTokens(final UUID kbTenantId) throws SQLException {
+        return execute(dataSource.getConnection(),
+                new WithConnectionCallback<DwollaTokensRecord>() {
+                    @Override
+                    public DwollaTokensRecord withConnection(final Connection conn) throws SQLException {
+                        return DSL.using(conn, dialect, settings)
+                                .selectFrom(DwollaTokens.DWOLLA_TOKENS)
+                                .where(DSL.field(DwollaTokens.DWOLLA_TOKENS.getName() + "." + KB_TENANT_ID).equal(kbTenantId.toString()))
+                                .orderBy(DSL.field(DwollaTokens.DWOLLA_TOKENS.getName() + "." + RECORD_ID).desc())
+                                .fetchOne();
+                    }
+                });
+    }
+
+    public void updateTokens(final String accessToken, final String refreshToken, final UUID kbTenantId) throws SQLException {
+        execute(dataSource.getConnection(),
+                new WithConnectionCallback<Void>() {
+                    @Override
+                    public Void withConnection(final Connection conn) throws SQLException {
+                        DSL.using(conn, dialect, settings)
+                                .transaction(new TransactionalRunnable() {
+                                    @Override
+                                    public void run(final Configuration configuration) throws Exception {
+                                        DSL.using(conn, dialect, settings)
+                                                .update(DwollaTokens.DWOLLA_TOKENS)
+                                                .set(DSL.field(DwollaTokens.DWOLLA_TOKENS.getName() + "." + DwollaTokens.DWOLLA_TOKENS.ACCESS_TOKEN.getName()), accessToken)
+                                                .set(DSL.field(DwollaTokens.DWOLLA_TOKENS.getName() + "." + DwollaTokens.DWOLLA_TOKENS.REFRESH_TOKEN.getName()), refreshToken)
+                                                .where(DSL.field(DwollaTokens.DWOLLA_TOKENS.getName() + "." + KB_TENANT_ID).equal(kbTenantId.toString()))
+                                                .execute();
+                                    }
+                                });
+                        return null;
+                    }
+                });
+    }
+
+    public void addResponse(final UUID kbAccountId,
+                            final UUID kbPaymentId,
+                            final UUID kbPaymentTransactionId,
+                            final TransactionType transactionType,
+                            @Nullable final BigDecimal amount,
+                            @Nullable final Currency currency,
+                            final Transfer result,
+                            final DateTime utcNow,
+                            final UUID kbTenantId) throws SQLException {
+
+        final String additionalData = getAdditionalData(result);
+
+        execute(dataSource.getConnection(),
+                new WithConnectionCallback<Void>() {
+                    @Override
+                    public Void withConnection(final Connection conn) throws SQLException {
+                        DSL.using(conn, dialect, settings)
+                                .insertInto(DWOLLA_RESPONSES,
+                                        DWOLLA_RESPONSES.KB_ACCOUNT_ID,
+                                        DWOLLA_RESPONSES.KB_PAYMENT_ID,
+                                        DWOLLA_RESPONSES.KB_PAYMENT_TRANSACTION_ID,
+                                        DWOLLA_RESPONSES.TRANSACTION_TYPE,
+                                        DWOLLA_RESPONSES.AMOUNT,
+                                        DWOLLA_RESPONSES.CURRENCY,
+                                        DWOLLA_RESPONSES.TRANSFER_ID,
+                                        DWOLLA_RESPONSES.TRANSFER_STATUS,
+                                        DWOLLA_RESPONSES.ERROR_CODES,
+                                        DWOLLA_RESPONSES.ADDITIONAL_DATA,
+                                        DWOLLA_RESPONSES.CREATED_DATE,
+                                        DWOLLA_RESPONSES.KB_TENANT_ID)
+                                .values(kbAccountId.toString(),
+                                        kbPaymentId.toString(),
+                                        kbPaymentTransactionId.toString(),
+                                        transactionType.toString(),
+                                        amount,
+                                        currency.toString(),
+                                        result.getId(),
+                                        result.getStatus(),
+                                        null, // TODO error code
+                                        additionalData,
+                                        toTimestamp(utcNow),
+                                        kbTenantId.toString())
+                                .execute();
+                        return null;
+                    }
+                });
+    }
+
+    private String getAdditionalData(Transfer result) throws SQLException {
+        Map<String, String> additionalData = new HashMap<String, String>();
+        additionalData.put("transferId", result.getId());
+        additionalData.put("status", result.getStatus());
+        try {
+            additionalData.put("links", objectMapper.writeValueAsString(result.getLinks()));
+            additionalData.put("embedded", objectMapper.writeValueAsString(result.getEmbedded()));
+            additionalData.put("metadata", objectMapper.writeValueAsString(result.getMetadata()));
+            return objectMapper.writeValueAsString(additionalData);
+        } catch (final JsonProcessingException e) {
+            throw new SQLException("");
+        }
     }
 }

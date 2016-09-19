@@ -35,4 +35,9 @@ public class Tables {
 	 * The table killbill.dwolla_responses
 	 */
 	public static final org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaResponses DWOLLA_RESPONSES = org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaResponses.DWOLLA_RESPONSES;
+
+	/**
+	 * The table killbill.dwolla_tokens
+	 */
+	public static final org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaTokens DWOLLA_TOKENS = org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaTokens.DWOLLA_TOKENS;
 }

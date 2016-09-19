@@ -20,6 +20,8 @@ import org.killbill.billing.osgi.api.OSGIPluginProperties;
 import org.killbill.billing.osgi.libs.killbill.KillbillActivatorBase;
 import org.killbill.billing.payment.plugin.api.PaymentPluginApi;
 import org.killbill.billing.plugin.dwolla.api.DwollaPaymentPluginApi;
+import org.killbill.billing.plugin.dwolla.client.DwollaClient;
+import org.killbill.billing.plugin.dwolla.client.DwollaConfigProperties;
 import org.killbill.billing.plugin.dwolla.dao.DwollaDao;
 import org.killbill.clock.Clock;
 import org.killbill.clock.DefaultClock;
@@ -39,13 +41,14 @@ public class DwollaActivator extends KillbillActivatorBase {
 
         final Clock clock = new DefaultClock();
         final DwollaDao dao = new DwollaDao(dataSource.getDataSource());
+        final DwollaClient client = new DwollaClient(new DwollaConfigProperties(configProperties.getProperties()));
 
         // Register the servlet
         final DwollaServlet dwollaServlet = new DwollaServlet();
         registerServlet(context, dwollaServlet);
 
         // Register the payment plugin
-        final DwollaPaymentPluginApi pluginApi = new DwollaPaymentPluginApi(killbillAPI, configProperties, logService, clock, dao);
+        final DwollaPaymentPluginApi pluginApi = new DwollaPaymentPluginApi(killbillAPI, configProperties, logService, clock, dao, client);
         registerPaymentPluginApi(context, pluginApi);
     }
 

@@ -16,7 +16,7 @@ package org.killbill.billing.plugin.dwolla.dao.gen.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class DwollaNotifications extends org.jooq.impl.TableImpl<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord> {
 
-	private static final long serialVersionUID = 451268208;
+	private static final long serialVersionUID = 1307091368;
 
 	/**
 	 * The reference instance of <code>killbill.dwolla_notifications</code>
@@ -65,51 +65,6 @@ public class DwollaNotifications extends org.jooq.impl.TableImpl<org.killbill.bi
 	 * The column <code>killbill.dwolla_notifications.currency</code>.
 	 */
 	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord, java.lang.String> CURRENCY = createField("currency", org.jooq.impl.SQLDataType.CHAR.length(3), this, "");
-
-	/**
-	 * The column <code>killbill.dwolla_notifications.event_code</code>.
-	 */
-	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord, java.lang.String> EVENT_CODE = createField("event_code", org.jooq.impl.SQLDataType.VARCHAR.length(64), this, "");
-
-	/**
-	 * The column <code>killbill.dwolla_notifications.event_date</code>.
-	 */
-	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord, java.sql.Timestamp> EVENT_DATE = createField("event_date", org.jooq.impl.SQLDataType.TIMESTAMP, this, "");
-
-	/**
-	 * The column <code>killbill.dwolla_notifications.merchant_account_code</code>.
-	 */
-	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord, java.lang.String> MERCHANT_ACCOUNT_CODE = createField("merchant_account_code", org.jooq.impl.SQLDataType.VARCHAR.length(64), this, "");
-
-	/**
-	 * The column <code>killbill.dwolla_notifications.merchant_reference</code>.
-	 */
-	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord, java.lang.String> MERCHANT_REFERENCE = createField("merchant_reference", org.jooq.impl.SQLDataType.VARCHAR.length(64), this, "");
-
-	/**
-	 * The column <code>killbill.dwolla_notifications.operations</code>.
-	 */
-	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord, java.lang.String> OPERATIONS = createField("operations", org.jooq.impl.SQLDataType.VARCHAR.length(1024), this, "");
-
-	/**
-	 * The column <code>killbill.dwolla_notifications.original_reference</code>.
-	 */
-	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord, java.lang.String> ORIGINAL_REFERENCE = createField("original_reference", org.jooq.impl.SQLDataType.VARCHAR.length(64), this, "");
-
-	/**
-	 * The column <code>killbill.dwolla_notifications.payment_method</code>.
-	 */
-	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord, java.lang.String> PAYMENT_METHOD = createField("payment_method", org.jooq.impl.SQLDataType.VARCHAR.length(64), this, "");
-
-	/**
-	 * The column <code>killbill.dwolla_notifications.psp_reference</code>.
-	 */
-	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord, java.lang.String> PSP_REFERENCE = createField("psp_reference", org.jooq.impl.SQLDataType.VARCHAR.length(64), this, "");
-
-	/**
-	 * The column <code>killbill.dwolla_notifications.reason</code>.
-	 */
-	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord, java.lang.String> REASON = createField("reason", org.jooq.impl.SQLDataType.VARCHAR.length(64), this, "");
 
 	/**
 	 * The column <code>killbill.dwolla_notifications.success</code>.
