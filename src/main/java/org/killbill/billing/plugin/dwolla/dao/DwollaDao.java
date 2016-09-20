@@ -19,7 +19,6 @@ package org.killbill.billing.plugin.dwolla.dao;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.base.Joiner;
 import io.swagger.client.model.Transfer;
 import org.joda.time.DateTime;
 import org.jooq.Configuration;
@@ -27,11 +26,12 @@ import org.jooq.TransactionalRunnable;
 import org.jooq.impl.DSL;
 import org.killbill.billing.catalog.api.Currency;
 import org.killbill.billing.payment.api.TransactionType;
+import org.killbill.billing.payment.plugin.api.PaymentPluginStatus;
 import org.killbill.billing.plugin.dao.payment.PluginPaymentDao;
 import org.killbill.billing.plugin.dwolla.api.DwollaPaymentPluginApi;
+import org.killbill.billing.plugin.dwolla.client.TransferStatus;
 import org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaPaymentMethods;
 import org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaResponses;
-import org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaTokens;
 import org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaPaymentMethodsRecord;
 import org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaResponsesRecord;
 import org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaTokensRecord;
@@ -45,15 +45,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.killbill.billing.plugin.dwolla.dao.gen.Tables.DWOLLA_PAYMENT_METHODS;
+import static org.killbill.billing.plugin.dwolla.dao.gen.Tables.DWOLLA_TOKENS;
 import static org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaResponses.DWOLLA_RESPONSES;
 
 public class DwollaDao extends PluginPaymentDao<DwollaResponsesRecord, DwollaResponses, DwollaPaymentMethodsRecord, DwollaPaymentMethods> {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    private static final Joiner JOINER = Joiner.on(",");
-
-    private static final String CUSTOMER_ID = "CUSTOMER_ID";
-    private static final String FUNDING_SOURCE = "FUNDING_SOURCE";
 
     public DwollaDao(final DataSource dataSource) throws SQLException {
         super(DWOLLA_RESPONSES, DwollaPaymentMethods.DWOLLA_PAYMENT_METHODS, dataSource);
@@ -78,16 +76,16 @@ public class DwollaDao extends PluginPaymentDao<DwollaResponsesRecord, DwollaRes
                     public Void withConnection(final Connection conn) throws SQLException {
                         DSL.using(conn, dialect, settings)
                                 .insertInto(paymentMethodsTable,
-                                        DSL.field(paymentMethodsTable.getName() + "." + KB_ACCOUNT_ID),
-                                        DSL.field(paymentMethodsTable.getName() + "." + KB_PAYMENT_METHOD_ID),
-                                        DSL.field(paymentMethodsTable.getName() + "." + FUNDING_SOURCE),
-                                        DSL.field(paymentMethodsTable.getName() + "." + CUSTOMER_ID),
-                                        DSL.field(paymentMethodsTable.getName() + "." + IS_DEFAULT),
-                                        DSL.field(paymentMethodsTable.getName() + "." + IS_DELETED),
-                                        DSL.field(paymentMethodsTable.getName() + "." + ADDITIONAL_DATA),
-                                        DSL.field(paymentMethodsTable.getName() + "." + CREATED_DATE),
-                                        DSL.field(paymentMethodsTable.getName() + "." + UPDATED_DATE),
-                                        DSL.field(paymentMethodsTable.getName() + "." + KB_TENANT_ID))
+                                        DWOLLA_PAYMENT_METHODS.KB_ACCOUNT_ID,
+                                        DWOLLA_PAYMENT_METHODS.KB_PAYMENT_METHOD_ID,
+                                        DWOLLA_PAYMENT_METHODS.FUNDING_SOURCE,
+                                        DWOLLA_PAYMENT_METHODS.CUSTOMER_ID,
+                                        DWOLLA_PAYMENT_METHODS.IS_DEFAULT,
+                                        DWOLLA_PAYMENT_METHODS.IS_DELETED,
+                                        DWOLLA_PAYMENT_METHODS.ADDITIONAL_DATA,
+                                        DWOLLA_PAYMENT_METHODS.CREATED_DATE,
+                                        DWOLLA_PAYMENT_METHODS.UPDATED_DATE,
+                                        DWOLLA_PAYMENT_METHODS.KB_TENANT_ID)
                                 .values(kbAccountId.toString(),
                                         kbPaymentMethodId.toString(),
                                         fundingSource,
@@ -110,9 +108,9 @@ public class DwollaDao extends PluginPaymentDao<DwollaResponsesRecord, DwollaRes
                     @Override
                     public DwollaTokensRecord withConnection(final Connection conn) throws SQLException {
                         return DSL.using(conn, dialect, settings)
-                                .selectFrom(DwollaTokens.DWOLLA_TOKENS)
-                                .where(DSL.field(DwollaTokens.DWOLLA_TOKENS.getName() + "." + KB_TENANT_ID).equal(kbTenantId.toString()))
-                                .orderBy(DSL.field(DwollaTokens.DWOLLA_TOKENS.getName() + "." + RECORD_ID).desc())
+                                .selectFrom(DWOLLA_TOKENS)
+                                .where(DWOLLA_TOKENS.KB_TENANT_ID.equal(kbTenantId.toString()))
+                                .orderBy(DWOLLA_TOKENS.RECORD_ID.desc())
                                 .fetchOne();
                     }
                 });
@@ -128,10 +126,10 @@ public class DwollaDao extends PluginPaymentDao<DwollaResponsesRecord, DwollaRes
                                     @Override
                                     public void run(final Configuration configuration) throws Exception {
                                         DSL.using(conn, dialect, settings)
-                                                .update(DwollaTokens.DWOLLA_TOKENS)
-                                                .set(DSL.field(DwollaTokens.DWOLLA_TOKENS.getName() + "." + DwollaTokens.DWOLLA_TOKENS.ACCESS_TOKEN.getName()), accessToken)
-                                                .set(DSL.field(DwollaTokens.DWOLLA_TOKENS.getName() + "." + DwollaTokens.DWOLLA_TOKENS.REFRESH_TOKEN.getName()), refreshToken)
-                                                .where(DSL.field(DwollaTokens.DWOLLA_TOKENS.getName() + "." + KB_TENANT_ID).equal(kbTenantId.toString()))
+                                                .update(DWOLLA_TOKENS)
+                                                .set(DWOLLA_TOKENS.ACCESS_TOKEN, accessToken)
+                                                .set(DWOLLA_TOKENS.REFRESH_TOKEN, refreshToken)
+                                                .where(DWOLLA_TOKENS.KB_TENANT_ID.equal(kbTenantId.toString()))
                                                 .execute();
                                     }
                                 });
@@ -188,6 +186,55 @@ public class DwollaDao extends PluginPaymentDao<DwollaResponsesRecord, DwollaRes
                 });
     }
 
+    public void addResponse(final UUID kbAccountId,
+                            final UUID kbPaymentId,
+                            final UUID kbPaymentTransactionId,
+                            final TransactionType transactionType,
+                            @Nullable final BigDecimal amount,
+                            @Nullable final Currency currency,
+                            final String errorCode,
+                            final String errorDescription,
+                            final DateTime utcNow,
+                            final UUID kbTenantId) throws SQLException {
+
+        final String additionalData = "errorDescription: " + errorDescription;
+
+        execute(dataSource.getConnection(),
+                new WithConnectionCallback<Void>() {
+                    @Override
+                    public Void withConnection(final Connection conn) throws SQLException {
+                        DSL.using(conn, dialect, settings)
+                                .insertInto(DWOLLA_RESPONSES,
+                                        DWOLLA_RESPONSES.KB_ACCOUNT_ID,
+                                        DWOLLA_RESPONSES.KB_PAYMENT_ID,
+                                        DWOLLA_RESPONSES.KB_PAYMENT_TRANSACTION_ID,
+                                        DWOLLA_RESPONSES.TRANSACTION_TYPE,
+                                        DWOLLA_RESPONSES.AMOUNT,
+                                        DWOLLA_RESPONSES.CURRENCY,
+                                        DWOLLA_RESPONSES.TRANSFER_ID,
+                                        DWOLLA_RESPONSES.TRANSFER_STATUS,
+                                        DWOLLA_RESPONSES.ERROR_CODES,
+                                        DWOLLA_RESPONSES.ADDITIONAL_DATA,
+                                        DWOLLA_RESPONSES.CREATED_DATE,
+                                        DWOLLA_RESPONSES.KB_TENANT_ID)
+                                .values(kbAccountId.toString(),
+                                        kbPaymentId.toString(),
+                                        kbPaymentTransactionId.toString(),
+                                        transactionType.toString(),
+                                        amount,
+                                        currency.toString(),
+                                        null, // transfer id
+                                        PaymentPluginStatus.ERROR.toString(),
+                                        errorCode,
+                                        additionalData,
+                                        toTimestamp(utcNow),
+                                        kbTenantId.toString())
+                                .execute();
+                        return null;
+                    }
+                });
+    }
+
     private String getAdditionalData(Transfer result) throws SQLException {
         Map<String, String> additionalData = new HashMap<String, String>();
         additionalData.put("transferId", result.getId());
@@ -198,7 +245,7 @@ public class DwollaDao extends PluginPaymentDao<DwollaResponsesRecord, DwollaRes
             additionalData.put("metadata", objectMapper.writeValueAsString(result.getMetadata()));
             return objectMapper.writeValueAsString(additionalData);
         } catch (final JsonProcessingException e) {
-            throw new SQLException("");
+            throw new SQLException(e.getMessage());
         }
     }
 }

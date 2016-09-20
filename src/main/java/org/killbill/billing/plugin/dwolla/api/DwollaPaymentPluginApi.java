@@ -20,6 +20,7 @@ package org.killbill.billing.plugin.dwolla.api;
 import com.dwolla.java.sdk.responses.TokenResponse;
 import com.google.common.collect.Lists;
 import io.swagger.client.ApiException;
+import io.swagger.client.api.FundingsourcesApi;
 import io.swagger.client.api.TransfersApi;
 import io.swagger.client.model.*;
 import org.joda.time.DateTime;
@@ -41,8 +42,8 @@ import org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaResponses
 import org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaTokensRecord;
 import org.killbill.billing.util.callcontext.CallContext;
 import org.killbill.clock.Clock;
+import org.osgi.service.log.LogService;
 
-import javax.xml.bind.JAXBException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -57,6 +58,7 @@ public class DwollaPaymentPluginApi extends PluginPaymentPluginApi<DwollaRespons
     // properties
     public static final String PROPERTY_CUSTOMER_ID = "customerId";
     public static final String PROPERTY_FUNDING_SOURCE_ID = "fundingSource";
+    public static final String SELF = "self";
 
     private final DwollaDao dao;
     private final DwollaClient client;
@@ -66,7 +68,7 @@ public class DwollaPaymentPluginApi extends PluginPaymentPluginApi<DwollaRespons
                                   final OSGIKillbillLogService logService,
                                   final Clock clock,
                                   final DwollaDao dao,
-                                  final DwollaClient client) throws JAXBException {
+                                  final DwollaClient client) {
         super(killbillApi, osgiConfigPropertiesService, logService, clock, dao);
         this.dao = dao;
         this.client = client;
@@ -122,16 +124,18 @@ public class DwollaPaymentPluginApi extends PluginPaymentPluginApi<DwollaRespons
         amountBody.setValue(amount.toString());
         body.setAmount(amountBody);
 
-        Map<String, HalLink> links = new HashMap<String, HalLink>();
-        HalLink source = new HalLink();
-        source.setHref(paymentMethod.getFundingSource());
-        links.put("source", source);
-        links.put("destination", getDwollaAccount());
-        body.setLinks(links);
-
         Transfer transfer = null;
 
         try {
+            FundingsourcesApi fundingsourcesApi = new FundingsourcesApi(client.getClient());
+            final FundingSource fundingSource = fundingsourcesApi.id(paymentMethod.getFundingSource());
+            final HalLink source = fundingSource.getLinks().get(SELF);
+
+            Map<String, HalLink> links = new HashMap<String, HalLink>();
+            links.put("source", source);
+            links.put("destination", getDwollaAccount());
+            body.setLinks(links);
+
             TransfersApi transfersApi = new TransfersApi(client.getClient());
             final Unit$ transferResponse = transfersApi.create(body);
             final String transferHref = transferResponse.getLocationHeader();
@@ -155,19 +159,28 @@ public class DwollaPaymentPluginApi extends PluginPaymentPluginApi<DwollaRespons
             );
 
         } catch (ApiException e) {
-            // TODO save response?
+            // TODO parse error
+            final String errorCode = "";
+            final String errorMsg = e.getMessage();
+
+            try {
+                e.getMessage();
+                dao.addResponse(kbAccountId, kbPaymentId, kbTransactionId, TransactionType.PURCHASE, amount, currency, errorCode, errorMsg, DateTime.now(), context.getTenantId());
+            } catch (SQLException sqle) {
+                logService.log(LogService.LOG_ERROR, sqle.getMessage());
+            }
             return new DwollaPaymentTransactionInfoPlugin(
                     kbPaymentId,
                     kbTransactionId,
                     TransactionType.PURCHASE,
                     amount,
                     currency.toString(),
-                    e.getMessage(), // gatewayError
-                    "", // gatewayErrorCode
+                    errorMsg, // gatewayError
+                    errorCode, // gatewayErrorCode
                     Lists.newArrayList(properties) // TODO PluginProperties.buildPluginProperties(...)
             );
         } catch (final SQLException e) {
-            // TODO save response?
+            logService.log(LogService.LOG_ERROR, e.getMessage());
             throw new PaymentPluginApiException("Payment went through, but we encountered a database error. Payment details: " + (transfer.toString()), e);
         }
     }
@@ -198,6 +211,7 @@ public class DwollaPaymentPluginApi extends PluginPaymentPluginApi<DwollaRespons
 
     @Override
     public GatewayNotification processNotification(String notification, Iterable<PluginProperty> properties, CallContext context) throws PaymentPluginApiException {
+        // TODO implement
         return null;
     }
 
