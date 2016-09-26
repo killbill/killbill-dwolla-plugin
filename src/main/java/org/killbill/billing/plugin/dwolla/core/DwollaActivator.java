@@ -1,7 +1,7 @@
 /*
- * Copyright 2014-2015 Groupon, Inc
+ * Copyright 2016 The Billing Project, LLC
  *
- * Groupon licenses this file to you under the Apache License, version 2.0
+ * The Billing Project licenses this file to you under the Apache License, version 2.0
  * (the "License"); you may not use this file except in compliance with the
  * License.  You may obtain a copy of the License at:
  *
@@ -42,14 +42,15 @@ public class DwollaActivator extends KillbillActivatorBase {
         final Clock clock = new DefaultClock();
         final DwollaDao dao = new DwollaDao(dataSource.getDataSource());
         final DwollaClient client = new DwollaClient(new DwollaConfigProperties(configProperties.getProperties()));
+        final DwollaNotificationHandler notificationHandler = new DwollaNotificationHandler(dao, client, killbillAPI, clock);
+
+        // Register the payment plugin
+        final DwollaPaymentPluginApi pluginApi = new DwollaPaymentPluginApi(killbillAPI, configProperties, logService, clock, dao, client, notificationHandler);
+        registerPaymentPluginApi(context, pluginApi);
 
         // Register the servlet
         final DwollaServlet dwollaServlet = new DwollaServlet();
         registerServlet(context, dwollaServlet);
-
-        // Register the payment plugin
-        final DwollaPaymentPluginApi pluginApi = new DwollaPaymentPluginApi(killbillAPI, configProperties, logService, clock, dao, client);
-        registerPaymentPluginApi(context, pluginApi);
     }
 
     private void registerServlet(final BundleContext context, final HttpServlet servlet) {

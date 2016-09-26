@@ -16,7 +16,7 @@ package org.killbill.billing.plugin.dwolla.dao.gen.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class DwollaNotifications extends org.jooq.impl.TableImpl<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord> {
 
-	private static final long serialVersionUID = 1307091368;
+	private static final long serialVersionUID = 531450938;
 
 	/**
 	 * The reference instance of <code>killbill.dwolla_notifications</code>
@@ -37,39 +37,34 @@ public class DwollaNotifications extends org.jooq.impl.TableImpl<org.killbill.bi
 	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord, org.jooq.types.UInteger> RECORD_ID = createField("record_id", org.jooq.impl.SQLDataType.INTEGERUNSIGNED.nullable(false), this, "");
 
 	/**
-	 * The column <code>killbill.dwolla_notifications.kb_account_id</code>.
+	 * The column <code>killbill.dwolla_notifications.self</code>.
 	 */
-	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord, java.lang.String> KB_ACCOUNT_ID = createField("kb_account_id", org.jooq.impl.SQLDataType.CHAR.length(36), this, "");
+	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord, java.lang.String> SELF = createField("self", org.jooq.impl.SQLDataType.CHAR.length(128).nullable(false), this, "");
 
 	/**
-	 * The column <code>killbill.dwolla_notifications.kb_payment_id</code>.
+	 * The column <code>killbill.dwolla_notifications.id</code>.
 	 */
-	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord, java.lang.String> KB_PAYMENT_ID = createField("kb_payment_id", org.jooq.impl.SQLDataType.CHAR.length(36), this, "");
+	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord, java.lang.String> ID = createField("id", org.jooq.impl.SQLDataType.CHAR.length(64).nullable(false), this, "");
 
 	/**
-	 * The column <code>killbill.dwolla_notifications.kb_payment_transaction_id</code>.
+	 * The column <code>killbill.dwolla_notifications.topic</code>.
 	 */
-	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord, java.lang.String> KB_PAYMENT_TRANSACTION_ID = createField("kb_payment_transaction_id", org.jooq.impl.SQLDataType.CHAR.length(36), this, "");
+	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord, java.lang.String> TOPIC = createField("topic", org.jooq.impl.SQLDataType.CHAR.length(32).nullable(false), this, "");
 
 	/**
-	 * The column <code>killbill.dwolla_notifications.transaction_type</code>.
+	 * The column <code>killbill.dwolla_notifications.account_id</code>.
 	 */
-	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord, java.lang.String> TRANSACTION_TYPE = createField("transaction_type", org.jooq.impl.SQLDataType.VARCHAR.length(32), this, "");
+	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord, java.lang.String> ACCOUNT_ID = createField("account_id", org.jooq.impl.SQLDataType.CHAR.length(64).nullable(false), this, "");
 
 	/**
-	 * The column <code>killbill.dwolla_notifications.amount</code>.
+	 * The column <code>killbill.dwolla_notifications.event_id</code>.
 	 */
-	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord, java.math.BigDecimal> AMOUNT = createField("amount", org.jooq.impl.SQLDataType.DECIMAL.precision(15, 9), this, "");
+	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord, java.lang.String> EVENT_ID = createField("event_id", org.jooq.impl.SQLDataType.CHAR.length(64).nullable(false), this, "");
 
 	/**
-	 * The column <code>killbill.dwolla_notifications.currency</code>.
+	 * The column <code>killbill.dwolla_notifications.subscription_id</code>.
 	 */
-	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord, java.lang.String> CURRENCY = createField("currency", org.jooq.impl.SQLDataType.CHAR.length(3), this, "");
-
-	/**
-	 * The column <code>killbill.dwolla_notifications.success</code>.
-	 */
-	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord, java.lang.Byte> SUCCESS = createField("success", org.jooq.impl.SQLDataType.TINYINT.nullable(false).defaulted(true), this, "");
+	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord, java.lang.String> SUBSCRIPTION_ID = createField("subscription_id", org.jooq.impl.SQLDataType.CHAR.length(64), this, "");
 
 	/**
 	 * The column <code>killbill.dwolla_notifications.additional_data</code>.
@@ -84,7 +79,7 @@ public class DwollaNotifications extends org.jooq.impl.TableImpl<org.killbill.bi
 	/**
 	 * The column <code>killbill.dwolla_notifications.kb_tenant_id</code>.
 	 */
-	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord, java.lang.String> KB_TENANT_ID = createField("kb_tenant_id", org.jooq.impl.SQLDataType.CHAR.length(36), this, "");
+	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord, java.lang.String> KB_TENANT_ID = createField("kb_tenant_id", org.jooq.impl.SQLDataType.CHAR.length(36).nullable(false), this, "");
 
 	/**
 	 * Create a <code>killbill.dwolla_notifications</code> table reference
@@ -129,7 +124,7 @@ public class DwollaNotifications extends org.jooq.impl.TableImpl<org.killbill.bi
 	 */
 	@Override
 	public java.util.List<org.jooq.UniqueKey<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord>> getKeys() {
-		return java.util.Arrays.<org.jooq.UniqueKey<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord>>asList(org.killbill.billing.plugin.dwolla.dao.gen.Keys.KEY_DWOLLA_NOTIFICATIONS_PRIMARY);
+		return java.util.Arrays.<org.jooq.UniqueKey<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord>>asList(org.killbill.billing.plugin.dwolla.dao.gen.Keys.KEY_DWOLLA_NOTIFICATIONS_PRIMARY, org.killbill.billing.plugin.dwolla.dao.gen.Keys.KEY_DWOLLA_NOTIFICATIONS_DWOLLA_NOTIFICATIONS_SELF);
 	}
 
 	/**

@@ -17,11 +17,6 @@ package org.killbill.billing.plugin.dwolla.dao.gen;
 public class Tables {
 
 	/**
-	 * The table killbill.dwolla_hpp_requests
-	 */
-	public static final org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaHppRequests DWOLLA_HPP_REQUESTS = org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaHppRequests.DWOLLA_HPP_REQUESTS;
-
-	/**
 	 * The table killbill.dwolla_notifications
 	 */
 	public static final org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaNotifications DWOLLA_NOTIFICATIONS = org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaNotifications.DWOLLA_NOTIFICATIONS;

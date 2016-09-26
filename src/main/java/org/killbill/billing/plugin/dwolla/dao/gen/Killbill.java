@@ -16,7 +16,7 @@ package org.killbill.billing.plugin.dwolla.dao.gen;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class Killbill extends org.jooq.impl.SchemaImpl {
 
-	private static final long serialVersionUID = -1880589674;
+	private static final long serialVersionUID = -1175055798;
 
 	/**
 	 * The reference instance of <code>killbill</code>
@@ -39,7 +39,6 @@ public class Killbill extends org.jooq.impl.SchemaImpl {
 
 	private final java.util.List<org.jooq.Table<?>> getTables0() {
 		return java.util.Arrays.<org.jooq.Table<?>>asList(
-			org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaHppRequests.DWOLLA_HPP_REQUESTS,
 			org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaNotifications.DWOLLA_NOTIFICATIONS,
 			org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaPaymentMethods.DWOLLA_PAYMENT_METHODS,
 			org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaResponses.DWOLLA_RESPONSES,

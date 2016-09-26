@@ -14,15 +14,18 @@
  * under the License.
  */
 
-package org.killbill.billing.plugin.dwolla;
+package org.killbill.billing.plugin.dwolla.api;
 
-import org.testng.annotations.BeforeClass;
+import org.joda.time.DateTime;
+import org.killbill.billing.plugin.api.PluginCallContext;
 
-public abstract class TestRemoteBase {
+import java.util.UUID;
 
-    @BeforeClass(groups = "slow")
-    public void setUpBeforeClass() throws Exception {
-        // TODO complete
+public class DwollaCallContext extends PluginCallContext {
+
+    private static final String DWOLLA_PLUGIN = "Dwolla plugin";
+
+    public DwollaCallContext(final DateTime utcNow, final UUID kbTenantId) {
+        super(DWOLLA_PLUGIN, utcNow, kbTenantId);
     }
-
 }

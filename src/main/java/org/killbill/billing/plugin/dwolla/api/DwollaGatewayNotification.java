@@ -14,15 +14,13 @@
  * under the License.
  */
 
-package org.killbill.billing.plugin.dwolla;
+package org.killbill.billing.plugin.dwolla.api;
 
-import org.testng.annotations.BeforeClass;
+import org.killbill.billing.plugin.api.payment.PluginGatewayNotification;
 
-public abstract class TestRemoteBase {
+public class DwollaGatewayNotification extends PluginGatewayNotification {
 
-    @BeforeClass(groups = "slow")
-    public void setUpBeforeClass() throws Exception {
-        // TODO complete
+    public DwollaGatewayNotification(final String entity) {
+        super(entity);
     }
-
 }

@@ -16,7 +16,7 @@ package org.killbill.billing.plugin.dwolla.dao.gen.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class DwollaResponses extends org.jooq.impl.TableImpl<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaResponsesRecord> {
 
-	private static final long serialVersionUID = -142855712;
+	private static final long serialVersionUID = -183608111;
 
 	/**
 	 * The reference instance of <code>killbill.dwolla_responses</code>
@@ -77,9 +77,9 @@ public class DwollaResponses extends org.jooq.impl.TableImpl<org.killbill.billin
 	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaResponsesRecord, java.lang.String> TRANSFER_STATUS = createField("transfer_status", org.jooq.impl.SQLDataType.VARCHAR.length(32), this, "");
 
 	/**
-	 * The column <code>killbill.dwolla_responses.error_codes</code>.
+	 * The column <code>killbill.dwolla_responses.error_code</code>.
 	 */
-	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaResponsesRecord, java.lang.String> ERROR_CODES = createField("error_codes", org.jooq.impl.SQLDataType.VARCHAR.length(64), this, "");
+	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaResponsesRecord, java.lang.String> ERROR_CODE = createField("error_code", org.jooq.impl.SQLDataType.VARCHAR.length(64), this, "");
 
 	/**
 	 * The column <code>killbill.dwolla_responses.additional_data</code>.

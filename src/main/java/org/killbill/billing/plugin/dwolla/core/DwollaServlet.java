@@ -1,7 +1,7 @@
 /*
- * Copyright 2014 Groupon, Inc
+ * Copyright 2016 The Billing Project, LLC
  *
- * Groupon licenses this file to you under the Apache License, version 2.0
+ * The Billing Project licenses this file to you under the Apache License, version 2.0
  * (the "License"); you may not use this file except in compliance with the
  * License.  You may obtain a copy of the License at:
  *
@@ -16,50 +16,26 @@
 
 package org.killbill.billing.plugin.dwolla.core;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import org.killbill.billing.plugin.core.PluginServlet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.killbill.billing.plugin.core.PluginServlet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
 
 public class DwollaServlet extends PluginServlet {
 
     private static final Logger logger = LoggerFactory.getLogger(DwollaServlet.class);
 
+    public DwollaServlet() {
+    }
+
     @Override
     protected void doGet(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
+        logger.debug("DWOLLA plugin running");
+        buildOKResponse(null, resp);
     }
 
-    @Override
-    protected void doPost(final HttpServletRequest req, final HttpServletResponse resp) throws ServletException, IOException {
-        final String formUrlEncoded = getRequestData(req);
-
-        final String[] keyValuePairs = formUrlEncoded.split("\\&");
-        final Map<String, String> parameters = new HashMap<String, String>();
-        for (final String keyValuePair : keyValuePairs) {
-            if (keyValuePair != null && !keyValuePair.isEmpty()) {
-                final String[] keyValue = keyValuePair.split("=");
-                if (keyValue.length != 2) {
-                    throw new RuntimeException("Invalid parameters :" + formUrlEncoded);
-                }
-                parameters.put(keyValue[0], keyValue[1]);
-            }
-        }
-
-        final StringBuffer tmp = new StringBuffer("TermUrl parameters:\n\n");
-        for (final String key : parameters.keySet()) {
-            tmp.append(key);
-            tmp.append(": ");
-            tmp.append(parameters.get(key));
-            tmp.append("\n\n");
-        }
-
-        logger.info(tmp.toString());
-    }
 }

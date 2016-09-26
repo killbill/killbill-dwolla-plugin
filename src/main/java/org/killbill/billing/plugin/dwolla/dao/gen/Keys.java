@@ -21,7 +21,6 @@ public class Keys {
 	// IDENTITY definitions
 	// -------------------------------------------------------------------------
 
-	public static final org.jooq.Identity<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaHppRequestsRecord, org.jooq.types.UInteger> IDENTITY_DWOLLA_HPP_REQUESTS = Identities0.IDENTITY_DWOLLA_HPP_REQUESTS;
 	public static final org.jooq.Identity<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord, org.jooq.types.UInteger> IDENTITY_DWOLLA_NOTIFICATIONS = Identities0.IDENTITY_DWOLLA_NOTIFICATIONS;
 	public static final org.jooq.Identity<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaPaymentMethodsRecord, org.jooq.types.UInteger> IDENTITY_DWOLLA_PAYMENT_METHODS = Identities0.IDENTITY_DWOLLA_PAYMENT_METHODS;
 	public static final org.jooq.Identity<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaResponsesRecord, org.jooq.types.UInteger> IDENTITY_DWOLLA_RESPONSES = Identities0.IDENTITY_DWOLLA_RESPONSES;
@@ -31,8 +30,8 @@ public class Keys {
 	// UNIQUE and PRIMARY KEY definitions
 	// -------------------------------------------------------------------------
 
-	public static final org.jooq.UniqueKey<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaHppRequestsRecord> KEY_DWOLLA_HPP_REQUESTS_PRIMARY = UniqueKeys0.KEY_DWOLLA_HPP_REQUESTS_PRIMARY;
 	public static final org.jooq.UniqueKey<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord> KEY_DWOLLA_NOTIFICATIONS_PRIMARY = UniqueKeys0.KEY_DWOLLA_NOTIFICATIONS_PRIMARY;
+	public static final org.jooq.UniqueKey<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord> KEY_DWOLLA_NOTIFICATIONS_DWOLLA_NOTIFICATIONS_SELF = UniqueKeys0.KEY_DWOLLA_NOTIFICATIONS_DWOLLA_NOTIFICATIONS_SELF;
 	public static final org.jooq.UniqueKey<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaPaymentMethodsRecord> KEY_DWOLLA_PAYMENT_METHODS_PRIMARY = UniqueKeys0.KEY_DWOLLA_PAYMENT_METHODS_PRIMARY;
 	public static final org.jooq.UniqueKey<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaPaymentMethodsRecord> KEY_DWOLLA_PAYMENT_METHODS_DWOLLA_PAYMENT_METHODS_KB_PAYMENT_ID = UniqueKeys0.KEY_DWOLLA_PAYMENT_METHODS_DWOLLA_PAYMENT_METHODS_KB_PAYMENT_ID;
 	public static final org.jooq.UniqueKey<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaResponsesRecord> KEY_DWOLLA_RESPONSES_PRIMARY = UniqueKeys0.KEY_DWOLLA_RESPONSES_PRIMARY;
@@ -49,7 +48,6 @@ public class Keys {
 	// -------------------------------------------------------------------------
 
 	private static class Identities0 extends org.jooq.impl.AbstractKeys {
-		public static org.jooq.Identity<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaHppRequestsRecord, org.jooq.types.UInteger> IDENTITY_DWOLLA_HPP_REQUESTS = createIdentity(org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaHppRequests.DWOLLA_HPP_REQUESTS, org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaHppRequests.DWOLLA_HPP_REQUESTS.RECORD_ID);
 		public static org.jooq.Identity<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord, org.jooq.types.UInteger> IDENTITY_DWOLLA_NOTIFICATIONS = createIdentity(org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaNotifications.DWOLLA_NOTIFICATIONS, org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaNotifications.DWOLLA_NOTIFICATIONS.RECORD_ID);
 		public static org.jooq.Identity<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaPaymentMethodsRecord, org.jooq.types.UInteger> IDENTITY_DWOLLA_PAYMENT_METHODS = createIdentity(org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaPaymentMethods.DWOLLA_PAYMENT_METHODS, org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaPaymentMethods.DWOLLA_PAYMENT_METHODS.RECORD_ID);
 		public static org.jooq.Identity<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaResponsesRecord, org.jooq.types.UInteger> IDENTITY_DWOLLA_RESPONSES = createIdentity(org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaResponses.DWOLLA_RESPONSES, org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaResponses.DWOLLA_RESPONSES.RECORD_ID);
@@ -57,8 +55,8 @@ public class Keys {
 	}
 
 	private static class UniqueKeys0 extends org.jooq.impl.AbstractKeys {
-		public static final org.jooq.UniqueKey<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaHppRequestsRecord> KEY_DWOLLA_HPP_REQUESTS_PRIMARY = createUniqueKey(org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaHppRequests.DWOLLA_HPP_REQUESTS, org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaHppRequests.DWOLLA_HPP_REQUESTS.RECORD_ID);
 		public static final org.jooq.UniqueKey<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord> KEY_DWOLLA_NOTIFICATIONS_PRIMARY = createUniqueKey(org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaNotifications.DWOLLA_NOTIFICATIONS, org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaNotifications.DWOLLA_NOTIFICATIONS.RECORD_ID);
+		public static final org.jooq.UniqueKey<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord> KEY_DWOLLA_NOTIFICATIONS_DWOLLA_NOTIFICATIONS_SELF = createUniqueKey(org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaNotifications.DWOLLA_NOTIFICATIONS, org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaNotifications.DWOLLA_NOTIFICATIONS.SELF);
 		public static final org.jooq.UniqueKey<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaPaymentMethodsRecord> KEY_DWOLLA_PAYMENT_METHODS_PRIMARY = createUniqueKey(org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaPaymentMethods.DWOLLA_PAYMENT_METHODS, org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaPaymentMethods.DWOLLA_PAYMENT_METHODS.RECORD_ID);
 		public static final org.jooq.UniqueKey<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaPaymentMethodsRecord> KEY_DWOLLA_PAYMENT_METHODS_DWOLLA_PAYMENT_METHODS_KB_PAYMENT_ID = createUniqueKey(org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaPaymentMethods.DWOLLA_PAYMENT_METHODS, org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaPaymentMethods.DWOLLA_PAYMENT_METHODS.KB_PAYMENT_METHOD_ID);
 		public static final org.jooq.UniqueKey<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaResponsesRecord> KEY_DWOLLA_RESPONSES_PRIMARY = createUniqueKey(org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaResponses.DWOLLA_RESPONSES, org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaResponses.DWOLLA_RESPONSES.RECORD_ID);

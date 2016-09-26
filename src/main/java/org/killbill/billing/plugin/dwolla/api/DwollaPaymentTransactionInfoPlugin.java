@@ -102,7 +102,7 @@ public class DwollaPaymentTransactionInfoPlugin extends PluginPaymentTransaction
                 record.getAmount(),
                 Strings.isNullOrEmpty(record.getCurrency()) ? null : Currency.valueOf(record.getCurrency()),
                 getPaymentPluginStatus(record),
-                record.getErrorCodes(),
+                record.getErrorCode(),
                 getGatewayError(record),
                 record.getTransferId(),
                 null,
@@ -133,17 +133,6 @@ public class DwollaPaymentTransactionInfoPlugin extends PluginPaymentTransaction
         } else {
             return getPaymentPluginStatus(record.getTransferStatus());
         }
-    }
-
-    private static String truncate(@Nullable final String string) {
-//        if (string == null) {
-//            return null;
-//        } else if (string.length() <= ERROR_CODE_MAX_LENGTH) {
-//            return string;
-//        } else {
-//            return string.substring(0, ERROR_CODE_MAX_LENGTH);
-//        }
-        return string;
     }
 
     private static String getGatewayError(final DwollaResponsesRecord record) {

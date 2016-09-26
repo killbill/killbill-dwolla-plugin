@@ -16,7 +16,7 @@ package org.killbill.billing.plugin.dwolla.dao.gen.tables.records;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class DwollaResponsesRecord extends org.jooq.impl.UpdatableRecordImpl<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaResponsesRecord> implements org.jooq.Record13<org.jooq.types.UInteger, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.math.BigDecimal, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.sql.Timestamp, java.lang.String> {
 
-	private static final long serialVersionUID = 1799258468;
+	private static final long serialVersionUID = -1217147173;
 
 	/**
 	 * Setter for <code>killbill.dwolla_responses.record_id</code>.
@@ -145,16 +145,16 @@ public class DwollaResponsesRecord extends org.jooq.impl.UpdatableRecordImpl<org
 	}
 
 	/**
-	 * Setter for <code>killbill.dwolla_responses.error_codes</code>.
+	 * Setter for <code>killbill.dwolla_responses.error_code</code>.
 	 */
-	public void setErrorCodes(java.lang.String value) {
+	public void setErrorCode(java.lang.String value) {
 		setValue(9, value);
 	}
 
 	/**
-	 * Getter for <code>killbill.dwolla_responses.error_codes</code>.
+	 * Getter for <code>killbill.dwolla_responses.error_code</code>.
 	 */
-	public java.lang.String getErrorCodes() {
+	public java.lang.String getErrorCode() {
 		return (java.lang.String) getValue(9);
 	}
 
@@ -309,7 +309,7 @@ public class DwollaResponsesRecord extends org.jooq.impl.UpdatableRecordImpl<org
 	 */
 	@Override
 	public org.jooq.Field<java.lang.String> field10() {
-		return org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaResponses.DWOLLA_RESPONSES.ERROR_CODES;
+		return org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaResponses.DWOLLA_RESPONSES.ERROR_CODE;
 	}
 
 	/**
@@ -413,7 +413,7 @@ public class DwollaResponsesRecord extends org.jooq.impl.UpdatableRecordImpl<org
 	 */
 	@Override
 	public java.lang.String value10() {
-		return getErrorCodes();
+		return getErrorCode();
 	}
 
 	/**
@@ -526,7 +526,7 @@ public class DwollaResponsesRecord extends org.jooq.impl.UpdatableRecordImpl<org
 	 */
 	@Override
 	public DwollaResponsesRecord value10(java.lang.String value) {
-		setErrorCodes(value);
+		setErrorCode(value);
 		return this;
 	}
 
@@ -579,7 +579,7 @@ public class DwollaResponsesRecord extends org.jooq.impl.UpdatableRecordImpl<org
 	/**
 	 * Create a detached, initialised DwollaResponsesRecord
 	 */
-	public DwollaResponsesRecord(org.jooq.types.UInteger recordId, java.lang.String kbAccountId, java.lang.String kbPaymentId, java.lang.String kbPaymentTransactionId, java.lang.String transactionType, java.math.BigDecimal amount, java.lang.String currency, java.lang.String transferId, java.lang.String transferStatus, java.lang.String errorCodes, java.lang.String additionalData, java.sql.Timestamp createdDate, java.lang.String kbTenantId) {
+	public DwollaResponsesRecord(org.jooq.types.UInteger recordId, java.lang.String kbAccountId, java.lang.String kbPaymentId, java.lang.String kbPaymentTransactionId, java.lang.String transactionType, java.math.BigDecimal amount, java.lang.String currency, java.lang.String transferId, java.lang.String transferStatus, java.lang.String errorCode, java.lang.String additionalData, java.sql.Timestamp createdDate, java.lang.String kbTenantId) {
 		super(org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaResponses.DWOLLA_RESPONSES);
 
 		setValue(0, recordId);
@@ -591,7 +591,7 @@ public class DwollaResponsesRecord extends org.jooq.impl.UpdatableRecordImpl<org
 		setValue(6, currency);
 		setValue(7, transferId);
 		setValue(8, transferStatus);
-		setValue(9, errorCodes);
+		setValue(9, errorCode);
 		setValue(10, additionalData);
 		setValue(11, createdDate);
 		setValue(12, kbTenantId);

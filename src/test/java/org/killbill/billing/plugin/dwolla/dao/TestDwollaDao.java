@@ -14,15 +14,13 @@
  * under the License.
  */
 
-package org.killbill.billing.plugin.dwolla;
+package org.killbill.billing.plugin.dwolla.dao;
 
-import org.testng.annotations.BeforeClass;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-public abstract class TestRemoteBase {
+public class TestDwollaDao {
 
-    @BeforeClass(groups = "slow")
-    public void setUpBeforeClass() throws Exception {
-        // TODO complete
-    }
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
+    // TODO complete
 }
