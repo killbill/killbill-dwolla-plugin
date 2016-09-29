@@ -61,7 +61,8 @@ public class DwollaNotificationHandler {
         this.clock = clock;
     }
 
-    public void processNotification(Webhook webhook, final UUID tenantId) throws PaymentPluginApiException {
+    public void processNotification(final String notification, final UUID tenantId) throws PaymentPluginApiException {
+        final Webhook webhook = JsonHelper.getObjectFromRequest(notification, Webhook.class);
         try {
             dao.addNotification(webhook, clock.getUTCNow(), tenantId);
         } catch (Exception e) {

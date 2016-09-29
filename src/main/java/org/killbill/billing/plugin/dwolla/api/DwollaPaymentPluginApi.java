@@ -226,8 +226,7 @@ public class DwollaPaymentPluginApi extends PluginPaymentPluginApi<DwollaRespons
 
     @Override
     public GatewayNotification processNotification(String notification, Iterable<PluginProperty> properties, CallContext context) throws PaymentPluginApiException {
-        final Webhook webhook = JsonHelper.getObjectFromRequest(notification, Webhook.class);
-        notificationHandler.processNotification(webhook, context.getTenantId());
+        notificationHandler.processNotification(notification, context.getTenantId());
         return new DwollaGatewayNotification(notification);
     }
 
