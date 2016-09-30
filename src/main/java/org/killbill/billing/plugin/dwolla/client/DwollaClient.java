@@ -39,14 +39,7 @@ public class DwollaClient {
 
         client = new ApiClient();
         client.setBasePath(configProperties.getBaseUrl());
-        client.setAccessToken(accessToken.access_token);
     }
-
-//    public TokenResponse getUserToken(String code) {
-//        OAuthServiceSync oAuth = createOAuthService();
-//        return oAuth.getToken(new DwollaTypedBytes(new Gson(),
-//                new TokenRequest(configProperties.getClientId(), configProperties.getClientSecret(), Consts.Api.AUTHORIZATION_CODE, configProperties.getRedirectUrl(), code)));
-//    }
 
     public TokenResponse refreshToken(final String refreshToken) {
         OAuthServiceSync oAuth = createOAuthService();

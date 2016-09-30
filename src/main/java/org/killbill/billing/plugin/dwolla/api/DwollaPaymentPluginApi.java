@@ -66,6 +66,7 @@ public class DwollaPaymentPluginApi extends PluginPaymentPluginApi<DwollaRespons
     public static final String PROPERTY_FUNDING_SOURCE_ID = "fundingSource";
     public static final String SELF = "self";
     public static final String SOURCE = "source";
+    public static final String RESOURCE = "resource";
     public static final String DESTINATION = "destination";
 
     private final DwollaDao dao;
@@ -174,7 +175,7 @@ public class DwollaPaymentPluginApi extends PluginPaymentPluginApi<DwollaRespons
             );
 
         } catch (ApiException e) {
-            // TODO parse error
+            // TODO parse error code
             final String errorCode = "";
             final String errorMsg = e.getMessage();
 
@@ -202,21 +203,21 @@ public class DwollaPaymentPluginApi extends PluginPaymentPluginApi<DwollaRespons
 
     @Override
     public PaymentTransactionInfoPlugin voidPayment(UUID kbAccountId, UUID kbPaymentId, UUID kbTransactionId, UUID kbPaymentMethodId, Iterable<PluginProperty> properties, CallContext context) throws PaymentPluginApiException {
-        // TODO Does Dwolla have cancel operation?
+        // TODO Should implement cancel operation?
+        // Please see: https://docsv2.dwolla.com/#cancel-a-transfer
         return new DwollaPaymentTransactionInfoPlugin(kbPaymentId, kbTransactionId, TransactionType.VOID, null, null, Lists.newArrayList(properties));
     }
 
     @Override
     public PaymentTransactionInfoPlugin creditPayment(UUID kbAccountId, UUID kbPaymentId, UUID kbTransactionId, UUID kbPaymentMethodId, BigDecimal amount, Currency currency, Iterable<PluginProperty> properties, CallContext context) throws PaymentPluginApiException {
-        // TODO Does Dwolla have credit?
         return new DwollaPaymentTransactionInfoPlugin(kbPaymentId, kbTransactionId, TransactionType.CREDIT, amount, currency.toString(), Lists.newArrayList(properties));
     }
 
     @Override
     public PaymentTransactionInfoPlugin refundPayment(UUID kbAccountId, UUID kbPaymentId, UUID kbTransactionId, UUID kbPaymentMethodId, BigDecimal amount, Currency currency, Iterable<PluginProperty> properties, CallContext context) throws PaymentPluginApiException {
         // TODO send money to customer
-        // https://developers.dwolla.com/guides/send-money/
-        return null;
+        // Please see: https://developers.dwolla.com/guides/send-money/
+        return new DwollaPaymentTransactionInfoPlugin(kbPaymentId, kbTransactionId, TransactionType.REFUND, amount, currency.toString(), Lists.newArrayList(properties));
     }
 
     @Override

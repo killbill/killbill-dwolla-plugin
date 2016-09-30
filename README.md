@@ -17,6 +17,9 @@ Requirements
 
 The plugin needs a database. The latest version of the schema can be found [here](https://github.com/killbill/killbill-dwolla-plugin/blob/master/src/main/resources/ddl.sql).
 
+Merchant need to create an Dwolla [application](https://developers.dwolla.com/guides/sandbox-setup/02-create-application.html).
+A *[Webhook Subscription](https://docsv2.dwolla.com/#webhook-subscriptions)* is needed to receive Dwolla notifications.
+
 Configuration
 -------------
 
@@ -154,4 +157,4 @@ curl -v \
 Notes:
 * Make sure to replace *resource.href* with the Dwolla transfer id reference of your payment (see the *dwolla_responses* table)
 * If *topic* is `customer_transfer_completed`, the payment transaction state will be *SUCCESS* and the payment state *PROCESSED*
-* If *topic* is `customer_transfer_failed` or `customer_transfer_cancelled`, the payment transaction state will be *PAYMENT_FAILURE* and the payment state *ERROR* or *CANCELLED*
+* If *topic* is `customer_transfer_failed` or `customer_transfer_canceled`, the payment transaction state will be *PAYMENT_FAILURE* and the payment state *ERROR* or *CANCELED*

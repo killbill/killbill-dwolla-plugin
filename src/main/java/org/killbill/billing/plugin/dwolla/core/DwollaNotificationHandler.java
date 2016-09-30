@@ -28,6 +28,7 @@ import org.killbill.billing.payment.api.*;
 import org.killbill.billing.payment.plugin.api.PaymentPluginApiException;
 import org.killbill.billing.payment.plugin.api.PaymentPluginStatus;
 import org.killbill.billing.plugin.dwolla.api.DwollaCallContext;
+import org.killbill.billing.plugin.dwolla.api.DwollaPaymentPluginApi;
 import org.killbill.billing.plugin.dwolla.client.DwollaClient;
 import org.killbill.billing.plugin.dwolla.dao.DwollaDao;
 import org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaResponsesRecord;
@@ -78,7 +79,7 @@ public class DwollaNotificationHandler {
         PaymentPluginStatus status = getTransferStatusUpdated(webhook.getTopic());
         final DwollaResponsesRecord dwollaResponse;
         if (status !=  null) {
-            final HalLink resource = webhook.getLinks().get("resource");
+            final HalLink resource = webhook.getLinks().get(DwollaPaymentPluginApi.RESOURCE);
             final String transferId = JsonHelper.getIdFromUrl(resource.getHref());
             try {
                 dwollaResponse = dao.getResponseByTransferId(transferId, tenantId);
