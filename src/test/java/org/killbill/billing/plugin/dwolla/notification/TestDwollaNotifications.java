@@ -1,4 +1,4 @@
-package org.killbill.billing.plugin.dwolla.client.notification;
+package org.killbill.billing.plugin.dwolla.notification;
 
 
 import io.swagger.client.model.Webhook;
@@ -134,7 +134,7 @@ public class TestDwollaNotifications {
 
         Mockito.verify(dao, times(1)).addNotification(Mockito.any(Webhook.class), Mockito.any(DateTime.class), Mockito.eq(tenantid));
         Mockito.verify(dao, times(1)).getResponseByTransferId(Mockito.anyString(), Mockito.eq(tenantid));
-        Mockito.verify(dao, times(1)).updateResponseStatus(Mockito.eq("customer_transfer_completed"), Mockito.anyString(), Mockito.eq(tenantid));
+        Mockito.verify(dao, times(1)).updateResponseStatus(Mockito.eq("processed"), Mockito.anyString(), Mockito.eq(tenantid));
 
         final UUID transactionId = transaction.getId();
         final boolean processed = true;
@@ -147,7 +147,7 @@ public class TestDwollaNotifications {
 
         Mockito.verify(dao, times(1)).addNotification(Mockito.any(Webhook.class), Mockito.any(DateTime.class), Mockito.eq(tenantid));
         Mockito.verify(dao, times(1)).getResponseByTransferId(Mockito.anyString(), Mockito.eq(tenantid));
-        Mockito.verify(dao, times(1)).updateResponseStatus(Mockito.eq("customer_transfer_failed"), Mockito.anyString(), Mockito.eq(tenantid));
+        Mockito.verify(dao, times(1)).updateResponseStatus(Mockito.eq("failed"), Mockito.anyString(), Mockito.eq(tenantid));
 
         final UUID transactionId = transaction.getId();
         final boolean processed = false;
@@ -163,7 +163,7 @@ public class TestDwollaNotifications {
 
         Mockito.verify(dao, times(1)).addNotification(Mockito.any(Webhook.class), Mockito.any(DateTime.class), Mockito.eq(tenantid));
         Mockito.verify(dao, never()).getResponseByTransferId(Mockito.anyString(), Mockito.eq(tenantid));
-        Mockito.verify(dao, never()).updateResponseStatus(Mockito.eq("customer_transfer_failed"), Mockito.anyString(), Mockito.eq(tenantid));
+        Mockito.verify(dao, never()).updateResponseStatus(Mockito.eq("failed"), Mockito.anyString(), Mockito.eq(tenantid));
 
         final UUID transactionId = transaction.getId();
         final boolean processed = false;

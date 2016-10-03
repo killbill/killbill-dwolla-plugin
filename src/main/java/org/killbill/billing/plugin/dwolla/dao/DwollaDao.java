@@ -18,6 +18,7 @@ package org.killbill.billing.plugin.dwolla.dao;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.annotations.VisibleForTesting;
 import io.swagger.client.model.Transfer;
 import io.swagger.client.model.TransferFailure;
 import io.swagger.client.model.Webhook;
@@ -103,6 +104,33 @@ public class DwollaDao extends PluginPaymentDao<DwollaResponsesRecord, DwollaRes
                 });
     }
 
+    @VisibleForTesting
+    public void addTokens(final String accessToken,
+                          final String refreshToken,
+                          final UUID tenantId) throws SQLException {
+
+        execute(dataSource.getConnection(),
+                new WithConnectionCallback<Void>() {
+                    @Override
+                    public Void withConnection(final Connection conn) throws SQLException {
+                        DSL.using(conn, dialect, settings)
+                                .insertInto(DWOLLA_TOKENS,
+                                        DWOLLA_TOKENS.ACCESS_TOKEN,
+                                        DWOLLA_TOKENS.REFRESH_TOKEN,
+                                        DWOLLA_TOKENS.CREATED_DATE,
+                                        DWOLLA_TOKENS.UPDATED_DATE,
+                                        DWOLLA_NOTIFICATIONS.KB_TENANT_ID)
+                                .values(accessToken,
+                                        refreshToken,
+                                        toTimestamp(DateTime.now()),
+                                        toTimestamp(DateTime.now()),
+                                        tenantId.toString())
+                                .execute();
+                        return null;
+                    }
+                });
+    }
+
     public DwollaTokensRecord getTokens(final UUID kbTenantId) throws SQLException {
         return execute(dataSource.getConnection(),
                 new WithConnectionCallback<DwollaTokensRecord>() {
@@ -139,7 +167,7 @@ public class DwollaDao extends PluginPaymentDao<DwollaResponsesRecord, DwollaRes
                 });
     }
 
-    public void addErrorResponse(final UUID kbAccountId,
+    public void addResponse(final UUID kbAccountId,
                                  final UUID kbPaymentId,
                                  final UUID kbPaymentTransactionId,
                                  final TransactionType transactionType,

@@ -26,13 +26,11 @@ import org.killbill.billing.payment.api.TransactionType;
 import org.killbill.billing.payment.plugin.api.PaymentPluginStatus;
 import org.killbill.billing.plugin.api.payment.PluginPaymentTransactionInfoPlugin;
 import org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaResponsesRecord;
+import org.killbill.billing.plugin.dwolla.util.DwollaPaymentPluginHelper;
 
-import javax.annotation.Nullable;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
-
-import static org.killbill.billing.plugin.dwolla.client.TransferStatus.valueOf;
 
 public class DwollaPaymentTransactionInfoPlugin extends PluginPaymentTransactionInfoPlugin {
 
@@ -46,7 +44,7 @@ public class DwollaPaymentTransactionInfoPlugin extends PluginPaymentTransaction
                 transactionType,
                 new BigDecimal(transfer.getAmount().getValue()),
                 Currency.valueOf(transfer.getAmount().getCurrency().toUpperCase()),
-                getPaymentPluginStatus(transfer.getStatus()),
+                DwollaPaymentPluginHelper.getPaymentPluginStatusFromTransfer(transfer.getStatus()),
                 null,
                 null,
                 firstPaymentReferenceId,
@@ -101,42 +99,14 @@ public class DwollaPaymentTransactionInfoPlugin extends PluginPaymentTransaction
                 TransactionType.valueOf(record.getTransactionType()),
                 record.getAmount(),
                 Strings.isNullOrEmpty(record.getCurrency()) ? null : Currency.valueOf(record.getCurrency()),
-                getPaymentPluginStatus(record),
+                DwollaPaymentPluginHelper.getPaymentPluginStatus(record),
                 record.getErrorCode(),
-                getGatewayError(record),
+                DwollaPaymentPluginHelper.getGatewayError(record),
                 record.getTransferId(),
                 null,
                 new DateTime(record.getCreatedDate(), DateTimeZone.UTC),
                 new DateTime(record.getCreatedDate(), DateTimeZone.UTC),
                 DwollaModelPluginBase.buildPluginProperties(record.getAdditionalData()));
-    }
-
-    private static PaymentPluginStatus getPaymentPluginStatus(final String transferStatus) {
-        switch (valueOf(transferStatus.toUpperCase())) {
-            case PENDING:
-                return PaymentPluginStatus.PENDING;
-            case PROCESSED:
-                return PaymentPluginStatus.PROCESSED;
-            case CANCELLED:
-                return PaymentPluginStatus.CANCELED;
-            case FAILED:
-                return PaymentPluginStatus.ERROR;
-            case RECLAIMED:
-            default:
-                return PaymentPluginStatus.UNDEFINED;
-        }
-    }
-
-    private static PaymentPluginStatus getPaymentPluginStatus(final DwollaResponsesRecord record) {
-        if (Strings.isNullOrEmpty(record.getTransferStatus())) {
-            return PaymentPluginStatus.UNDEFINED;
-        } else {
-            return getPaymentPluginStatus(record.getTransferStatus());
-        }
-    }
-
-    private static String getGatewayError(final DwollaResponsesRecord record) {
-        return ""; // TODO
     }
 
 }

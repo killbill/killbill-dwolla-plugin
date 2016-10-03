@@ -32,6 +32,7 @@ import org.killbill.billing.plugin.dwolla.api.DwollaPaymentPluginApi;
 import org.killbill.billing.plugin.dwolla.client.DwollaClient;
 import org.killbill.billing.plugin.dwolla.dao.DwollaDao;
 import org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaResponsesRecord;
+import org.killbill.billing.plugin.dwolla.util.DwollaPaymentPluginHelper;
 import org.killbill.billing.plugin.dwolla.util.JsonHelper;
 import org.killbill.billing.util.callcontext.CallContext;
 import org.killbill.billing.util.callcontext.TenantContext;
@@ -91,16 +92,14 @@ public class DwollaNotificationHandler {
                         clock.getUTCNow(), tenantId);
 
                 // Update the plugin tables
-                dao.updateResponseStatus(webhook.getTopic(), transferId, tenantId);
-
+                final String transferStatus = DwollaPaymentPluginHelper.getTransferStatusFromNotification(webhook.getTopic()).toString();
+                dao.updateResponseStatus(transferStatus, transferId, tenantId);
 
             } catch (SQLException e) {
                 logger.error("Error processing existing transfer response", e);
                 throw new PaymentPluginApiException("Error saving webhook in database", e);
             }
-
         }
-
     }
 
     private PaymentPluginStatus getTransferStatusUpdated(final String topic) {
@@ -145,7 +144,7 @@ public class DwollaNotificationHandler {
             } else if (paymentTransaction != null && TransactionStatus.PENDING.equals(paymentTransaction.getTransactionStatus())) {
                 return transitionPendingTransaction(account, kbPaymentTransactionId, paymentPluginStatus, context);
             } else {
-                // Payment in Kill Bill has the latest state, nothing to do (we simply updated our plugin tables in case Adyen had extra information for us)
+                // Payment in Kill Bill has the latest state, nothing to do (we simply updated our plugin tables in case Dwolla had extra information for us)
                 return payment;
             }
         } else {
@@ -159,7 +158,7 @@ public class DwollaNotificationHandler {
         try {
             return osgiKillbillAPI.getAccountUserApi().getAccountById(kbAccountId, context);
         } catch (final AccountApiException e) {
-            // Have Adyen retry
+            // Have Dwolla retry
             throw new RuntimeException(String.format("Failed to retrieve kbAccountId='%s'", kbAccountId), e);
         }
     }
@@ -168,7 +167,7 @@ public class DwollaNotificationHandler {
         try {
             return osgiKillbillAPI.getPaymentApi().getPayment(kbPaymentId, true, false, ImmutableList.<PluginProperty>of(), context);
         } catch (final PaymentApiException e) {
-            // Have Adyen retry
+            // Have Dwolla retry
             throw new RuntimeException(String.format("Failed to retrieve kbPaymentId='%s'", kbPaymentId), e);
         }
     }
@@ -186,7 +185,7 @@ public class DwollaNotificationHandler {
         try {
             return osgiKillbillAPI.getPaymentApi().notifyPendingTransactionOfStateChanged(account, kbPaymentTransactionId, paymentPluginStatus == PaymentPluginStatus.PROCESSED, context);
         } catch (final PaymentApiException e) {
-            // Have Adyen retry
+            // Have Dwolla retry
             throw new RuntimeException(String.format("Failed to transition pending transaction kbPaymentTransactionId='%s'", kbPaymentTransactionId), e);
         }
     }

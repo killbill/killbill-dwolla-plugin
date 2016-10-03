@@ -161,7 +161,7 @@ public class DwollaPaymentPluginApi extends PluginPaymentPluginApi<DwollaRespons
                 transferFailure = null;
             }
 
-            dao.addErrorResponse(kbAccountId, kbPaymentId, kbTransactionId, TransactionType.PURCHASE, amount, currency,
+            dao.addResponse(kbAccountId, kbPaymentId, kbTransactionId, TransactionType.PURCHASE, amount, currency,
                     transfer, transferFailure, properties, DateTime.now(), context.getTenantId());
 
             return new DwollaPaymentTransactionInfoPlugin(
