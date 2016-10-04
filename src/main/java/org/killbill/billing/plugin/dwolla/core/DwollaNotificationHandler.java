@@ -99,6 +99,9 @@ public class DwollaNotificationHandler {
                 logger.error("Error processing existing transfer response", e);
                 throw new PaymentPluginApiException("Error saving webhook in database", e);
             }
+        } else {
+            // nothing to do, it's an event that we don't want to process
+            logger.debug("Ignoring Dwolla event: " + webhook.getTopic() + ", id : " + webhook.getId());
         }
     }
 
@@ -109,10 +112,9 @@ public class DwollaNotificationHandler {
                 return PaymentPluginStatus.PROCESSED;
             case ACCOUNT_TRANSFER_FAILED:
             case CUSTOMER_TRANSFER_FAILED:
-                return PaymentPluginStatus.ERROR;
             case ACCOUNT_TRANSFER_CANCELLED:
             case CUSTOMER_TRANSFER_CANCELLED:
-                return PaymentPluginStatus.CANCELED;
+                return PaymentPluginStatus.ERROR;
         }
         return null;
     }

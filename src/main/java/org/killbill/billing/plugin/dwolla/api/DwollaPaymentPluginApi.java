@@ -180,7 +180,7 @@ public class DwollaPaymentPluginApi extends PluginPaymentPluginApi<DwollaRespons
             final String errorMsg = e.getMessage();
 
             try {
-                e.getMessage();
+                logService.log(LogService.LOG_WARNING, e.getMessage());
                 dao.addErrorResponse(kbAccountId, kbPaymentId, kbTransactionId, TransactionType.PURCHASE, amount, currency, errorCode, errorMsg, DateTime.now(), context.getTenantId());
             } catch (SQLException sqle) {
                 logService.log(LogService.LOG_ERROR, sqle.getMessage());
@@ -263,7 +263,7 @@ public class DwollaPaymentPluginApi extends PluginPaymentPluginApi<DwollaRespons
         }
     }
 
-    private void refreshClientTokens(CallContext context) throws PaymentPluginApiException {
+    private synchronized void refreshClientTokens(CallContext context) throws PaymentPluginApiException {
         try {
             final DwollaTokensRecord tokens = dao.getTokens(context.getTenantId());
             if (tokens == null) {

@@ -96,7 +96,7 @@ public class TestDwollaNotifications {
     public void setUp() throws Exception {
         tenantid = UUID.randomUUID();
 
-        account = TestUtils.buildAccount(Currency.EUR, "DE");
+        account = TestUtils.buildAccount(Currency.USD, "US");
         killbillApi = TestUtils.buildOSGIKillbillAPI(account);
 
         TestUtils.buildPaymentMethod(account.getId(), account.getPaymentMethodId(), DwollaActivator.PLUGIN_NAME, killbillApi);
