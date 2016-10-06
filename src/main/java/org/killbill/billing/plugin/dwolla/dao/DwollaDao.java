@@ -32,6 +32,7 @@ import org.killbill.billing.payment.api.TransactionType;
 import org.killbill.billing.payment.plugin.api.PaymentPluginStatus;
 import org.killbill.billing.plugin.dao.payment.PluginPaymentDao;
 import org.killbill.billing.plugin.dwolla.api.DwollaPaymentPluginApi;
+import org.killbill.billing.plugin.dwolla.client.TransferStatus;
 import org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaPaymentMethods;
 import org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaResponses;
 import org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaPaymentMethodsRecord;
@@ -255,7 +256,7 @@ public class DwollaDao extends PluginPaymentDao<DwollaResponsesRecord, DwollaRes
                                         amount,
                                         currency.toString(),
                                         null, // transfer id
-                                        PaymentPluginStatus.ERROR.toString(),
+                                        TransferStatus.FAILED.toString(),
                                         errorCode,
                                         additionalData,
                                         toTimestamp(utcNow),

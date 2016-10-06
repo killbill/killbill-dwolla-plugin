@@ -41,7 +41,6 @@ import org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaResponses;
 import org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaPaymentMethodsRecord;
 import org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaResponsesRecord;
 import org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaTokensRecord;
-import org.killbill.billing.plugin.dwolla.util.JsonHelper;
 import org.killbill.billing.util.callcontext.CallContext;
 import org.killbill.clock.Clock;
 import org.osgi.service.log.LogService;
@@ -51,6 +50,7 @@ import org.slf4j.LoggerFactory;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -118,17 +118,12 @@ public class DwollaPaymentPluginApi extends PluginPaymentPluginApi<DwollaRespons
 
     @Override
     public PaymentTransactionInfoPlugin purchasePayment(UUID kbAccountId, UUID kbPaymentId, UUID kbTransactionId, UUID kbPaymentMethodId, BigDecimal amount, Currency currency, Iterable<PluginProperty> properties, CallContext context) throws PaymentPluginApiException {
-        checkValidAccessToken(context);
-        DwollaPaymentMethodsRecord paymentMethod = null;
-        try {
-            paymentMethod = dao.getPaymentMethod(kbPaymentMethodId, context.getTenantId());
-        } catch (SQLException e) {
-            throw new PaymentPluginApiException("There was an error trying to load Dwolla payment method for KillBill payment method " + kbPaymentMethodId, e);
-        }
+        return createDwollaTransaction(TransactionType.PURCHASE, kbAccountId, kbPaymentId, kbTransactionId, kbPaymentMethodId, amount, currency, properties, context);
+    }
 
-        if (paymentMethod == null) {
-            throw new PaymentPluginApiException(null, "No Dwolla payment method was found for killbill payment method " + kbPaymentMethodId);
-        }
+    private PaymentTransactionInfoPlugin createDwollaTransaction(final TransactionType transactionType, final UUID kbAccountId, final UUID kbPaymentId, final UUID kbTransactionId, final UUID kbPaymentMethodId, final BigDecimal amount, final Currency currency, final Iterable<PluginProperty> properties, final CallContext context) throws PaymentPluginApiException {
+        checkValidAccessToken(context);
+        DwollaPaymentMethodsRecord paymentMethod = getDwollaPaymentMethod(kbPaymentMethodId, context);
 
         TransferRequestBody body = new TransferRequestBody();
         Amount amountBody = new Amount();
@@ -139,13 +134,16 @@ public class DwollaPaymentPluginApi extends PluginPaymentPluginApi<DwollaRespons
         Transfer transfer = null;
 
         try {
-            FundingsourcesApi fundingsourcesApi = new FundingsourcesApi(client.getClient());
-            final FundingSource fundingSource = fundingsourcesApi.id(paymentMethod.getFundingSource());
-            final HalLink source = fundingSource.getLinks().get(SELF);
+            final HalLink customerFundingSource = getFundingSoruceHalLinkById(paymentMethod.getFundingSource());
 
             Map<String, HalLink> links = new HashMap<String, HalLink>();
-            links.put(SOURCE, source);
-            links.put(DESTINATION, getDwollaAccount());
+            if (TransactionType.REFUND.equals(transactionType)) {
+                links.put(SOURCE, getDwollaFirstActiveMerchantFundingSource());
+                links.put(DESTINATION, customerFundingSource);
+            } else {
+                links.put(SOURCE, customerFundingSource);
+                links.put(DESTINATION, getDwollaMerchantAccount());
+            }
             body.setLinks(links);
 
             TransfersApi transfersApi = new TransfersApi(client.getClient());
@@ -161,14 +159,14 @@ public class DwollaPaymentPluginApi extends PluginPaymentPluginApi<DwollaRespons
                 transferFailure = null;
             }
 
-            dao.addResponse(kbAccountId, kbPaymentId, kbTransactionId, TransactionType.PURCHASE, amount, currency,
+            dao.addResponse(kbAccountId, kbPaymentId, kbTransactionId, transactionType, amount, currency,
                     transfer, transferFailure, properties, DateTime.now(), context.getTenantId());
 
             return new DwollaPaymentTransactionInfoPlugin(
                     transfer,
                     kbPaymentId,
                     kbTransactionId,
-                    TransactionType.PURCHASE,
+                    transactionType,
                     transfer.getId(), // firstPaymentReferenceId
                     "", // secondPaymentReferenceId
                     Lists.newArrayList(properties)
@@ -181,14 +179,14 @@ public class DwollaPaymentPluginApi extends PluginPaymentPluginApi<DwollaRespons
 
             try {
                 logService.log(LogService.LOG_WARNING, e.getMessage());
-                dao.addErrorResponse(kbAccountId, kbPaymentId, kbTransactionId, TransactionType.PURCHASE, amount, currency, errorCode, errorMsg, DateTime.now(), context.getTenantId());
+                dao.addErrorResponse(kbAccountId, kbPaymentId, kbTransactionId, transactionType, amount, currency, errorCode, errorMsg, DateTime.now(), context.getTenantId());
             } catch (SQLException sqle) {
                 logService.log(LogService.LOG_ERROR, sqle.getMessage());
             }
             return new DwollaPaymentTransactionInfoPlugin(
                     kbPaymentId,
                     kbTransactionId,
-                    TransactionType.PURCHASE,
+                    transactionType,
                     amount,
                     currency.toString(),
                     errorMsg, // gatewayError
@@ -199,6 +197,26 @@ public class DwollaPaymentPluginApi extends PluginPaymentPluginApi<DwollaRespons
             logService.log(LogService.LOG_ERROR, e.getMessage());
             throw new PaymentPluginApiException("Payment went through, but we encountered a database error. Payment details: " + (transfer.toString()), e);
         }
+    }
+
+    private HalLink getFundingSoruceHalLinkById(final String id) throws ApiException {
+        FundingsourcesApi fundingsourcesApi = new FundingsourcesApi(client.getClient());
+        final FundingSource fundingSource = fundingsourcesApi.id(id);
+        return fundingSource.getLinks().get(SELF);
+    }
+
+    private DwollaPaymentMethodsRecord getDwollaPaymentMethod(UUID kbPaymentMethodId, CallContext context) throws PaymentPluginApiException {
+        DwollaPaymentMethodsRecord paymentMethod = null;
+        try {
+            paymentMethod = dao.getPaymentMethod(kbPaymentMethodId, context.getTenantId());
+        } catch (SQLException e) {
+            throw new PaymentPluginApiException("There was an error trying to load Dwolla payment method for KillBill payment method " + kbPaymentMethodId, e);
+        }
+
+        if (paymentMethod == null) {
+            throw new PaymentPluginApiException(null, "No Dwolla payment method was found for killbill payment method " + kbPaymentMethodId);
+        }
+        return paymentMethod;
     }
 
     @Override
@@ -215,9 +233,7 @@ public class DwollaPaymentPluginApi extends PluginPaymentPluginApi<DwollaRespons
 
     @Override
     public PaymentTransactionInfoPlugin refundPayment(UUID kbAccountId, UUID kbPaymentId, UUID kbTransactionId, UUID kbPaymentMethodId, BigDecimal amount, Currency currency, Iterable<PluginProperty> properties, CallContext context) throws PaymentPluginApiException {
-        // TODO send money to customer
-        // Please see: https://developers.dwolla.com/guides/send-money/
-        return new DwollaPaymentTransactionInfoPlugin(kbPaymentId, kbTransactionId, TransactionType.REFUND, amount, currency.toString(), Lists.newArrayList(properties));
+        return createDwollaTransaction(TransactionType.REFUND, kbAccountId, kbPaymentId, kbTransactionId, kbPaymentMethodId, amount, currency, properties, context);
     }
 
     @Override
@@ -231,10 +247,31 @@ public class DwollaPaymentPluginApi extends PluginPaymentPluginApi<DwollaRespons
         return new DwollaGatewayNotification(notification);
     }
 
-    public HalLink getDwollaAccount() throws PaymentPluginApiException {
+    public HalLink getDwollaMerchantAccount() throws PaymentPluginApiException {
         try {
             final CatalogResponse root = client.getRootInfo();
             return root.getLinks().get("account");
+        } catch (ApiException e) {
+            throw new PaymentPluginApiException("There was an error loading merchant account info.", e);
+        }
+    }
+
+    public HalLink getDwollaFirstActiveMerchantFundingSource() throws PaymentPluginApiException {
+        try {
+            final CatalogResponse root = client.getRootInfo();
+            final String accountId = root.getLinks().get("account").getHref();
+
+            FundingsourcesApi fundingsourcesApi = new FundingsourcesApi(client.getClient());
+            FundingSourceListResponse fundingSources = fundingsourcesApi.getAccountFundingSources(accountId, false);
+
+            if (fundingSources != null) {
+                Map<String, List<Map<String, Object>>> embedded = (Map<String, List<Map<String, Object>>>) fundingSources.getEmbedded();
+                List<Map<String, Object>> sources = embedded.get("funding-sources");
+                final String fundingSourceId = (String) sources.get(0).get("id");
+                return getFundingSoruceHalLinkById(fundingSourceId);
+            }
+
+            return  null;
         } catch (ApiException e) {
             throw new PaymentPluginApiException("There was an error loading merchant account info.", e);
         }

@@ -88,8 +88,7 @@ public class DwollaNotificationHandler {
                 updateKillbill(UUID.fromString(dwollaResponse.getKbAccountId()),
                         UUID.fromString(dwollaResponse.getKbPaymentId()),
                         UUID.fromString(dwollaResponse.getKbPaymentTransactionId()),
-                        status, TransactionType.PURCHASE,
-                        clock.getUTCNow(), tenantId);
+                        status, clock.getUTCNow(), tenantId);
 
                 // Update the plugin tables
                 final String transferStatus = DwollaPaymentPluginHelper.getTransferStatusFromNotification(webhook.getTopic()).toString();
@@ -123,7 +122,6 @@ public class DwollaNotificationHandler {
                                    @Nullable final UUID kbPaymentId,
                                    @Nullable final UUID kbPaymentTransactionId,
                                    final PaymentPluginStatus paymentPluginStatus,
-                                   @Nullable final TransactionType expectedTransactionType,
                                    final DateTime utcNow,
                                    @Nullable final UUID kbTenantId) {
         if (kbPaymentId != null) {
@@ -137,7 +135,6 @@ public class DwollaNotificationHandler {
 
             PaymentTransaction paymentTransaction = filterForTransaction(payment, kbPaymentTransactionId);
             Preconditions.checkNotNull(paymentTransaction, String.format("kbPaymentTransactionId='%s' not found for kbPaymentId='%s'", kbPaymentTransactionId, kbPaymentId));
-            Preconditions.checkArgument(expectedTransactionType == null || paymentTransaction.getTransactionType() == expectedTransactionType, String.format("transactionType='%s' doesn't match expectedTransactionType='%s'", paymentTransaction.getTransactionType(), expectedTransactionType));
 
             // Update Kill Bill
             if (PaymentPluginStatus.UNDEFINED.equals(paymentPluginStatus)) {
