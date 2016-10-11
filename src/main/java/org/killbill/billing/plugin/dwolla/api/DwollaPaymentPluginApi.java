@@ -68,6 +68,7 @@ public class DwollaPaymentPluginApi extends PluginPaymentPluginApi<DwollaRespons
     public static final String SOURCE = "source";
     public static final String RESOURCE = "resource";
     public static final String DESTINATION = "destination";
+    public static final String ACCOUNT = "account";
 
     private final DwollaDao dao;
     private final DwollaClient client;
@@ -134,7 +135,7 @@ public class DwollaPaymentPluginApi extends PluginPaymentPluginApi<DwollaRespons
         Transfer transfer = null;
 
         try {
-            final HalLink customerFundingSource = getFundingSoruceHalLinkById(paymentMethod.getFundingSource());
+            final HalLink customerFundingSource = getFundingSourceHalLinkById(paymentMethod.getFundingSource());
 
             Map<String, HalLink> links = new HashMap<String, HalLink>();
             if (TransactionType.REFUND.equals(transactionType)) {
@@ -199,7 +200,7 @@ public class DwollaPaymentPluginApi extends PluginPaymentPluginApi<DwollaRespons
         }
     }
 
-    private HalLink getFundingSoruceHalLinkById(final String id) throws ApiException {
+    private HalLink getFundingSourceHalLinkById(final String id) throws ApiException {
         FundingsourcesApi fundingsourcesApi = new FundingsourcesApi(client.getClient());
         final FundingSource fundingSource = fundingsourcesApi.id(id);
         return fundingSource.getLinks().get(SELF);
@@ -250,7 +251,7 @@ public class DwollaPaymentPluginApi extends PluginPaymentPluginApi<DwollaRespons
     public HalLink getDwollaMerchantAccount() throws PaymentPluginApiException {
         try {
             final CatalogResponse root = client.getRootInfo();
-            return root.getLinks().get("account");
+            return root.getLinks().get(ACCOUNT);
         } catch (ApiException e) {
             throw new PaymentPluginApiException("There was an error loading merchant account info.", e);
         }
@@ -259,7 +260,7 @@ public class DwollaPaymentPluginApi extends PluginPaymentPluginApi<DwollaRespons
     public HalLink getDwollaFirstActiveMerchantFundingSource() throws PaymentPluginApiException {
         try {
             final CatalogResponse root = client.getRootInfo();
-            final String accountId = root.getLinks().get("account").getHref();
+            final String accountId = root.getLinks().get(ACCOUNT).getHref();
 
             FundingsourcesApi fundingsourcesApi = new FundingsourcesApi(client.getClient());
             FundingSourceListResponse fundingSources = fundingsourcesApi.getAccountFundingSources(accountId, false);
@@ -268,7 +269,7 @@ public class DwollaPaymentPluginApi extends PluginPaymentPluginApi<DwollaRespons
                 Map<String, List<Map<String, Object>>> embedded = (Map<String, List<Map<String, Object>>>) fundingSources.getEmbedded();
                 List<Map<String, Object>> sources = embedded.get("funding-sources");
                 final String fundingSourceId = (String) sources.get(0).get("id");
-                return getFundingSoruceHalLinkById(fundingSourceId);
+                return getFundingSourceHalLinkById(fundingSourceId);
             }
 
             return  null;
