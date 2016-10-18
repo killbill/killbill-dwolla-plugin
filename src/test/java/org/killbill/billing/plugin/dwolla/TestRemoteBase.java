@@ -29,6 +29,7 @@ import org.killbill.billing.plugin.TestUtils;
 import org.killbill.billing.plugin.TestWithEmbeddedDBBase;
 import org.killbill.billing.plugin.dwolla.api.DwollaPaymentPluginApi;
 import org.killbill.billing.plugin.dwolla.client.DwollaClient;
+import org.killbill.billing.plugin.dwolla.client.DwollaConfigProperties;
 import org.killbill.billing.plugin.dwolla.core.DwollaActivator;
 import org.killbill.billing.plugin.dwolla.core.DwollaNotificationHandler;
 import org.killbill.billing.plugin.dwolla.dao.DwollaDao;
@@ -48,6 +49,7 @@ public abstract class TestRemoteBase extends TestWithEmbeddedDBBase {
     public static final String DEFAULT_COUNTRY = "US";
     public static final Currency DEFAULT_CURRENCY = Currency.USD;
     public static final UUID TENANT_ID = UUID.randomUUID();
+    public static final String  ACCOUNT_ID = UUID.randomUUID().toString();
     public static final String ACCESS_TOKEN = "US";
     public static final String REFRESH_TOKEN = "US";
 
@@ -107,6 +109,10 @@ public abstract class TestRemoteBase extends TestWithEmbeddedDBBase {
         )).thenReturn("{}");
 
 
+        final DwollaConfigProperties configProperties = Mockito.mock(DwollaConfigProperties.class);
+        Mockito.when(configProperties.getAccountId()).thenReturn(ACCOUNT_ID);
+        Mockito.when(client.getConfigProperties()).thenReturn(configProperties);
+
         final FundingSource fundingSource = new FundingSource();
         fundingSource.setId("692486f8-29f6-4516-a6a5-c69fd2ce854c");
         fundingSource.setStatus("verified");
@@ -145,6 +151,6 @@ public abstract class TestRemoteBase extends TestWithEmbeddedDBBase {
     @Override
     public void setUpBeforeMethod() throws Exception {
         super.setUpBeforeMethod();
-        dao.addTokens(ACCESS_TOKEN, REFRESH_TOKEN, TENANT_ID);
+        dao.addTokens(ACCESS_TOKEN, REFRESH_TOKEN, ACCOUNT_ID, TENANT_ID);
     }
 }

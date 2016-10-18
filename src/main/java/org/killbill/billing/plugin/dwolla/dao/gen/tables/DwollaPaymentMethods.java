@@ -16,7 +16,7 @@ package org.killbill.billing.plugin.dwolla.dao.gen.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class DwollaPaymentMethods extends org.jooq.impl.TableImpl<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaPaymentMethodsRecord> {
 
-	private static final long serialVersionUID = -996041958;
+	private static final long serialVersionUID = 607538483;
 
 	/**
 	 * The reference instance of <code>killbill.dwolla_payment_methods</code>
@@ -49,12 +49,17 @@ public class DwollaPaymentMethods extends org.jooq.impl.TableImpl<org.killbill.b
 	/**
 	 * The column <code>killbill.dwolla_payment_methods.funding_source</code>.
 	 */
-	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaPaymentMethodsRecord, java.lang.String> FUNDING_SOURCE = createField("funding_source", org.jooq.impl.SQLDataType.VARCHAR.length(255), this, "");
+	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaPaymentMethodsRecord, java.lang.String> FUNDING_SOURCE = createField("funding_source", org.jooq.impl.SQLDataType.VARCHAR.length(64), this, "");
 
 	/**
 	 * The column <code>killbill.dwolla_payment_methods.customer_id</code>.
 	 */
-	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaPaymentMethodsRecord, java.lang.String> CUSTOMER_ID = createField("customer_id", org.jooq.impl.SQLDataType.VARCHAR.length(255), this, "");
+	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaPaymentMethodsRecord, java.lang.String> CUSTOMER_ID = createField("customer_id", org.jooq.impl.SQLDataType.VARCHAR.length(64), this, "");
+
+	/**
+	 * The column <code>killbill.dwolla_payment_methods.account_id</code>.
+	 */
+	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaPaymentMethodsRecord, java.lang.String> ACCOUNT_ID = createField("account_id", org.jooq.impl.SQLDataType.VARCHAR.length(64), this, "");
 
 	/**
 	 * The column <code>killbill.dwolla_payment_methods.is_default</code>.

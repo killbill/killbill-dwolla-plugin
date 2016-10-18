@@ -16,7 +16,7 @@ package org.killbill.billing.plugin.dwolla.dao.gen.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class DwollaNotifications extends org.jooq.impl.TableImpl<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord> {
 
-	private static final long serialVersionUID = 531450938;
+	private static final long serialVersionUID = 1080228890;
 
 	/**
 	 * The reference instance of <code>killbill.dwolla_notifications</code>
@@ -54,12 +54,12 @@ public class DwollaNotifications extends org.jooq.impl.TableImpl<org.killbill.bi
 	/**
 	 * The column <code>killbill.dwolla_notifications.account_id</code>.
 	 */
-	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord, java.lang.String> ACCOUNT_ID = createField("account_id", org.jooq.impl.SQLDataType.CHAR.length(64).nullable(false), this, "");
+	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord, java.lang.String> ACCOUNT_ID = createField("account_id", org.jooq.impl.SQLDataType.CHAR.length(64), this, "");
 
 	/**
 	 * The column <code>killbill.dwolla_notifications.event_id</code>.
 	 */
-	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord, java.lang.String> EVENT_ID = createField("event_id", org.jooq.impl.SQLDataType.CHAR.length(64).nullable(false), this, "");
+	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaNotificationsRecord, java.lang.String> EVENT_ID = createField("event_id", org.jooq.impl.SQLDataType.CHAR.length(64), this, "");
 
 	/**
 	 * The column <code>killbill.dwolla_notifications.subscription_id</code>.
