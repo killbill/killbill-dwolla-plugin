@@ -56,8 +56,7 @@ public class DwollaClient {
     public TokenResponse getUserToken(String code) {
         OAuthServiceSync oAuth = createOAuthService();
         final TokenRequest request = new TokenRequest(configProperties.getClientId(), configProperties.getClientSecret(), Consts.Api.AUTHORIZATION_CODE, configProperties.getRedirectUrl(), code);
-        return oAuth.getToken(
-                new DwollaTypedBytes(new Gson(), request));
+        return oAuth.getToken(new DwollaTypedBytes(new Gson(), request));
     }
 
     public CatalogResponse getRootInfo() throws ApiException {

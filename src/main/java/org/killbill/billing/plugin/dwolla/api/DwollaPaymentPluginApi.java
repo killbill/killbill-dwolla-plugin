@@ -22,7 +22,15 @@ import com.google.common.collect.Lists;
 import io.swagger.client.ApiException;
 import io.swagger.client.api.FundingsourcesApi;
 import io.swagger.client.api.TransfersApi;
-import io.swagger.client.model.*;
+import io.swagger.client.model.Amount;
+import io.swagger.client.model.CatalogResponse;
+import io.swagger.client.model.FundingSource;
+import io.swagger.client.model.FundingSourceListResponse;
+import io.swagger.client.model.HalLink;
+import io.swagger.client.model.Transfer;
+import io.swagger.client.model.TransferFailure;
+import io.swagger.client.model.TransferRequestBody;
+import io.swagger.client.model.Unit$;
 import org.joda.time.DateTime;
 import org.killbill.billing.catalog.api.Currency;
 import org.killbill.billing.osgi.libs.killbill.OSGIConfigPropertiesService;
@@ -31,7 +39,11 @@ import org.killbill.billing.osgi.libs.killbill.OSGIKillbillLogService;
 import org.killbill.billing.payment.api.PaymentMethodPlugin;
 import org.killbill.billing.payment.api.PluginProperty;
 import org.killbill.billing.payment.api.TransactionType;
-import org.killbill.billing.payment.plugin.api.*;
+import org.killbill.billing.payment.plugin.api.GatewayNotification;
+import org.killbill.billing.payment.plugin.api.HostedPaymentPageFormDescriptor;
+import org.killbill.billing.payment.plugin.api.PaymentMethodInfoPlugin;
+import org.killbill.billing.payment.plugin.api.PaymentPluginApiException;
+import org.killbill.billing.payment.plugin.api.PaymentTransactionInfoPlugin;
 import org.killbill.billing.plugin.api.PluginProperties;
 import org.killbill.billing.plugin.api.payment.PluginPaymentPluginApi;
 import org.killbill.billing.plugin.dwolla.client.DwollaClient;
@@ -115,48 +127,50 @@ public class DwollaPaymentPluginApi extends PluginPaymentPluginApi<DwollaRespons
 
     @Override
     public void addPaymentMethod(UUID kbAccountId, UUID kbPaymentMethodId, PaymentMethodPlugin paymentMethodProps, boolean setDefault, Iterable<PluginProperty> properties, CallContext context) throws PaymentPluginApiException {
-        Map<String, String> mergedProperties = checkForDwollaDirectSolution(paymentMethodProps, properties, context);
+        Map<String, String> mergedProperties = addPropertiesAndProcessDwollaDirectSolution(paymentMethodProps, properties, context);
         final DateTime utcNow = clock.getUTCNow();
         try {
             dao.addPaymentMethod(kbAccountId, kbPaymentMethodId, setDefault, mergedProperties, utcNow, context.getTenantId());
         } catch (final SQLException e) {
-            throw new PaymentPluginApiException("Unable to add payment method for kbPaymentMethodId " + kbPaymentMethodId, e);
+            throw new PaymentPluginApiException("Unable to add payment method for kbPaymentMethodId='" + kbPaymentMethodId + "'", e);
+
         }
     }
 
-    private Map<String, String> checkForDwollaDirectSolution(final PaymentMethodPlugin paymentMethodProps, final Iterable<PluginProperty> properties, final CallContext context) throws PaymentPluginApiException {
+    private Map<String, String> addPropertiesAndProcessDwollaDirectSolution(final PaymentMethodPlugin paymentMethodProps, final Iterable<PluginProperty> properties, final CallContext context) throws PaymentPluginApiException {
         final Map<String, String> mergedProperties = new HashMap<String, String>(PluginProperties.toStringMap(paymentMethodProps.getProperties(), properties));
         final String code = mergedProperties.get(CODE);
-        if (!Strings.isNullOrEmpty(code)) {
-            // Dwolla Direct - needs to retrieve account id and funding sources
-
-            final HalLink dwollaAccountLink;
-            final TokenResponse tokenResponse = client.getUserToken(code);
-            try {
-                client.getClient().setAccessToken(tokenResponse.access_token);
-                final CatalogResponse root = client.getRootInfo();
-                dwollaAccountLink = root.getLinks().get(ACCOUNT);
-            } catch (ApiException e) {
-                throw new PaymentPluginApiException("Unable to get account from Dwolla Direct auth code: " + code, e);
-            }
-
-            final String dwollaAccountId = getIdFromUrl(dwollaAccountLink);
-            try {
-                // save/update Dwolla Direct account token pair
-                if (dao.getTokens(dwollaAccountId, context.getTenantId()) == null) {
-                    dao.addTokens(tokenResponse.access_token, tokenResponse.refresh_token, dwollaAccountId, context.getTenantId());
-                } else {
-                    dao.updateTokens(tokenResponse.access_token, tokenResponse.refresh_token, dwollaAccountId, context.getTenantId());
-                }
-            } catch (SQLException e) {
-                throw new PaymentPluginApiException("Error saving Dwolla Direct account token pair for " + dwollaAccountLink.getHref(), e);
-            }
-
-            final HalLink fundingSourceLink = getFirstActiveFundingSource(dwollaAccountLink.getHref());
-            final String fundingSourceId = getIdFromUrl(fundingSourceLink);
-            mergedProperties.put(PROPERTY_ACCOUNT_ID, dwollaAccountId);
-            mergedProperties.put(PROPERTY_FUNDING_SOURCE_ID, fundingSourceId);
+        if (Strings.isNullOrEmpty(code)) {
+            return mergedProperties;
         }
+        // Dwolla Direct - needs to retrieve account id and funding sources
+
+        final HalLink dwollaAccountLink;
+        final TokenResponse tokenResponse = client.getUserToken(code);
+        try {
+            client.getClient().setAccessToken(tokenResponse.access_token);
+            final CatalogResponse root = client.getRootInfo();
+            dwollaAccountLink = root.getLinks().get(ACCOUNT);
+        } catch (ApiException e) {
+            throw new PaymentPluginApiException("Unable to get account from Dwolla Direct auth code: " + code, e);
+        }
+
+        final String dwollaAccountId = getIdFromUrl(dwollaAccountLink);
+        try {
+            // save/update Dwolla Direct account token pair
+            if (dao.getTokens(dwollaAccountId, context.getTenantId()) == null) {
+                dao.addTokens(tokenResponse.access_token, tokenResponse.refresh_token, dwollaAccountId, context.getTenantId());
+            } else {
+                dao.updateTokens(tokenResponse.access_token, tokenResponse.refresh_token, dwollaAccountId, context.getTenantId());
+            }
+        } catch (SQLException e) {
+            throw new PaymentPluginApiException("Error saving Dwolla Direct account token pair for " + dwollaAccountLink.getHref(), e);
+        }
+
+        final HalLink fundingSourceLink = getFirstActiveFundingSource(dwollaAccountLink.getHref());
+        final String fundingSourceId = getIdFromUrl(fundingSourceLink);
+        mergedProperties.put(PROPERTY_ACCOUNT_ID, dwollaAccountId);
+        mergedProperties.put(PROPERTY_FUNDING_SOURCE_ID, fundingSourceId);
         return mergedProperties;
     }
 
@@ -248,8 +262,14 @@ public class DwollaPaymentPluginApi extends PluginPaymentPluginApi<DwollaRespons
 
         } catch (ApiException e) {
             final DwollaErrorResponse error = JsonHelper.getObjectFromRequest(e.getMessage(), DwollaErrorResponse.class);
-            final String errorCode = error.get_embedded().get("errors").get(0).get("code").toString();
-            final String errorMessage = error.get_embedded().get("errors").get(0).get("message").toString();
+            String errorCode = null;
+            String errorMessage;
+            try {
+                errorCode = error.get_embedded().get("errors").get(0).get("code").toString();
+                errorMessage = error.get_embedded().get("errors").get(0).get("message").toString();
+            } catch (Exception ex) {
+                errorMessage = e.getMessage();
+            }
             try {
                 logService.log(LogService.LOG_WARNING, e.getMessage());
                 dao.addErrorResponse(kbAccountId, kbPaymentId, kbTransactionId, transactionType, amount, currency, errorCode, errorMessage, DateTime.now(), context.getTenantId());
