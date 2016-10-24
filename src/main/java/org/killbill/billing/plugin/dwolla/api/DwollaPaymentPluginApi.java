@@ -81,12 +81,12 @@ public class DwollaPaymentPluginApi extends PluginPaymentPluginApi<DwollaRespons
     public static final String PROPERTY_CUSTOMER_ID = "customerId";
     public static final String PROPERTY_ACCOUNT_ID = "accountId";
     public static final String PROPERTY_FUNDING_SOURCE_ID = "fundingSource";
+    public static final String PROPERTY_CODE = "code";
     public static final String SELF = "self";
     public static final String SOURCE = "source";
     public static final String RESOURCE = "resource";
     public static final String DESTINATION = "destination";
     public static final String ACCOUNT = "account";
-    public static final String CODE = "code";
 
     private final DwollaDao dao;
     private final DwollaClient client;
@@ -139,7 +139,7 @@ public class DwollaPaymentPluginApi extends PluginPaymentPluginApi<DwollaRespons
 
     private Map<String, String> addPropertiesAndProcessDwollaDirectSolution(final PaymentMethodPlugin paymentMethodProps, final Iterable<PluginProperty> properties, final CallContext context) throws PaymentPluginApiException {
         final Map<String, String> mergedProperties = new HashMap<String, String>(PluginProperties.toStringMap(paymentMethodProps.getProperties(), properties));
-        final String code = mergedProperties.get(CODE);
+        final String code = mergedProperties.get(PROPERTY_CODE);
         if (Strings.isNullOrEmpty(code)) {
             return mergedProperties;
         }

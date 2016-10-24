@@ -1,3 +1,18 @@
+/*
+ * Copyright 2016 The Billing Project, LLC
+ *
+ * The Billing Project licenses this file to you under the Apache License, version 2.0
+ * (the "License"); you may not use this file except in compliance with the
+ * License.  You may obtain a copy of the License at:
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.  See the
+ * License for the specific language governing permissions and limitations
+ * under the License.
+ */
 package org.killbill.billing.plugin.dwolla.payment;
 
 import com.google.common.base.Predicate;
@@ -7,7 +22,11 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import org.killbill.billing.catalog.api.Currency;
-import org.killbill.billing.payment.api.*;
+import org.killbill.billing.payment.api.Payment;
+import org.killbill.billing.payment.api.PaymentApiException;
+import org.killbill.billing.payment.api.PaymentMethodPlugin;
+import org.killbill.billing.payment.api.PaymentTransaction;
+import org.killbill.billing.payment.api.PluginProperty;
 import org.killbill.billing.payment.plugin.api.PaymentPluginApiException;
 import org.killbill.billing.payment.plugin.api.PaymentPluginStatus;
 import org.killbill.billing.payment.plugin.api.PaymentTransactionInfoPlugin;
@@ -18,30 +37,77 @@ import org.killbill.billing.plugin.dwolla.api.DwollaPaymentMethodPlugin;
 import org.killbill.billing.plugin.dwolla.api.DwollaPaymentPluginApi;
 import org.killbill.billing.plugin.dwolla.dao.DwollaDao;
 import org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaPaymentMethodsRecord;
+import org.mockito.InOrder;
+import org.mockito.Mockito;
+import org.mockito.verification.VerificationMode;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertNull;
-import static org.testng.Assert.assertTrue;
 import static org.testng.AssertJUnit.assertEquals;
 
 public class TestDwollaPaymentPluginApi extends TestRemoteBase {
 
     private final static String FUNDING_SOURCE_ID = UUID.randomUUID().toString();
+    private final static String CODE = UUID.randomUUID().toString();
+    private InOrder inOrder;
+
+    @BeforeClass
+    @Override
+    public void setUpBeforeClass() throws Exception {
+        super.setUpBeforeClass();
+        inOrder = Mockito.inOrder(client.getClient());
+    }
 
     @Test(groups = "slow")
-    public void testPurchaseAndRefund() throws Exception {
+    public void testPurchaseAndRefundWhiteLabelSolution() throws Exception {
         paymentPluginApi.addPaymentMethod(account.getId(), account.getPaymentMethodId(), dWollaEmptyPaymentMethodPlugin(), true,
                 PluginProperties.buildPluginProperties(ImmutableMap.<String, String>of(DwollaPaymentPluginApi.PROPERTY_FUNDING_SOURCE_ID, FUNDING_SOURCE_ID)), context);
 
+        verifySetAccessTokenNumberOfCalls(never(), never());
+
         final Iterable<PluginProperty> properties = PluginProperties.buildPluginProperties(ImmutableMap.<String, String>of());
         final Payment payment = doPurchase(BigDecimal.TEN, account.getCurrency(), properties);
+
+        verifySetAccessTokenNumberOfCalls(times(1), never());
+
         doRefund(payment, BigDecimal.TEN, properties);
+
+        verifySetAccessTokenNumberOfCalls(times(1), never());
+    }
+
+    @Test(groups = "slow")
+    public void testPurchaseAndRefundDwollaDirectSolution() throws Exception {
+        paymentPluginApi.addPaymentMethod(account.getId(), account.getPaymentMethodId(), dWollaEmptyPaymentMethodPlugin(), true,
+                PluginProperties.buildPluginProperties(ImmutableMap.<String, String>of(DwollaPaymentPluginApi.PROPERTY_CODE, CODE)), context);
+
+        verifySetAccessTokenNumberOfCalls(never(), times(1));
+
+        final Iterable<PluginProperty> properties = PluginProperties.buildPluginProperties(ImmutableMap.<String, String>of());
+        final Payment payment = doPurchase(BigDecimal.TEN, account.getCurrency(), properties);
+
+        verifySetAccessTokenNumberOfCalls(times(1), times(1));
+        verifySetAccessTokenNumberOfCalls(times(1), never());
+
+        doRefund(payment, BigDecimal.TEN, properties);
+
+        verifySetAccessTokenNumberOfCalls(times(1), times(1));
+        verifySetAccessTokenNumberOfCalls(times(1), never());
+    }
+
+    private void verifySetAccessTokenNumberOfCalls(final VerificationMode whiteLabelTimes, final VerificationMode dwollaDirectTimes) {
+        // verify how many time White Label access token is set
+        inOrder.verify(client.getClient(), whiteLabelTimes).setAccessToken(Mockito.eq(WL_ACCESS_TOKEN));
+
+        // verify how many time Dwolla Direct access token is set
+        inOrder.verify(client.getClient(), dwollaDirectTimes).setAccessToken(Mockito.eq(DD_ACCESS_TOKEN));
     }
 
     private PaymentMethodPlugin dWollaEmptyPaymentMethodPlugin() {
