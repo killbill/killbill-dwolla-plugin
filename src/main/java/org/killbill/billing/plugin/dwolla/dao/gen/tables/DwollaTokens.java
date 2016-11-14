@@ -16,7 +16,7 @@ package org.killbill.billing.plugin.dwolla.dao.gen.tables;
 @java.lang.SuppressWarnings({ "all", "unchecked", "rawtypes" })
 public class DwollaTokens extends org.jooq.impl.TableImpl<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaTokensRecord> {
 
-	private static final long serialVersionUID = 1649040238;
+	private static final long serialVersionUID = 1712441443;
 
 	/**
 	 * The reference instance of <code>killbill.dwolla_tokens</code>
@@ -47,6 +47,11 @@ public class DwollaTokens extends org.jooq.impl.TableImpl<org.killbill.billing.p
 	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaTokensRecord, java.lang.String> REFRESH_TOKEN = createField("refresh_token", org.jooq.impl.SQLDataType.CHAR.length(64).nullable(false), this, "");
 
 	/**
+	 * The column <code>killbill.dwolla_tokens.account_id</code>.
+	 */
+	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaTokensRecord, java.lang.String> ACCOUNT_ID = createField("account_id", org.jooq.impl.SQLDataType.CHAR.length(64).nullable(false), this, "");
+
+	/**
 	 * The column <code>killbill.dwolla_tokens.created_date</code>.
 	 */
 	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaTokensRecord, java.sql.Timestamp> CREATED_DATE = createField("created_date", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false), this, "");
@@ -54,7 +59,7 @@ public class DwollaTokens extends org.jooq.impl.TableImpl<org.killbill.billing.p
 	/**
 	 * The column <code>killbill.dwolla_tokens.updated_date</code>.
 	 */
-	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaTokensRecord, java.sql.Timestamp> UPDATED_DATE = createField("updated_date", org.jooq.impl.SQLDataType.TIMESTAMP.nullable(false), this, "");
+	public final org.jooq.TableField<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaTokensRecord, java.sql.Timestamp> UPDATED_DATE = createField("updated_date", org.jooq.impl.SQLDataType.TIMESTAMP, this, "");
 
 	/**
 	 * The column <code>killbill.dwolla_tokens.kb_tenant_id</code>.
@@ -104,7 +109,7 @@ public class DwollaTokens extends org.jooq.impl.TableImpl<org.killbill.billing.p
 	 */
 	@Override
 	public java.util.List<org.jooq.UniqueKey<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaTokensRecord>> getKeys() {
-		return java.util.Arrays.<org.jooq.UniqueKey<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaTokensRecord>>asList(org.killbill.billing.plugin.dwolla.dao.gen.Keys.KEY_DWOLLA_TOKENS_PRIMARY, org.killbill.billing.plugin.dwolla.dao.gen.Keys.KEY_DWOLLA_TOKENS_DWOLLA_TOKENS_TENANT_ID);
+		return java.util.Arrays.<org.jooq.UniqueKey<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaTokensRecord>>asList(org.killbill.billing.plugin.dwolla.dao.gen.Keys.KEY_DWOLLA_TOKENS_PRIMARY, org.killbill.billing.plugin.dwolla.dao.gen.Keys.KEY_DWOLLA_TOKENS_DWOLLA_TOKENS_ACCOUNT_TENANT_ID);
 	}
 
 	/**

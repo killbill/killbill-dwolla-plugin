@@ -53,6 +53,12 @@ public class DwollaClient {
                 new TokenRequest(configProperties.getClientId(), configProperties.getClientSecret(), "client_credentials", null)));
     }
 
+    public TokenResponse getUserToken(String code) {
+        OAuthServiceSync oAuth = createOAuthService();
+        final TokenRequest request = new TokenRequest(configProperties.getClientId(), configProperties.getClientSecret(), Consts.Api.AUTHORIZATION_CODE, configProperties.getRedirectUrl(), code);
+        return oAuth.getToken(new DwollaTypedBytes(new Gson(), request));
+    }
+
     public CatalogResponse getRootInfo() throws ApiException {
         final RootApi rootApi = new RootApi(client);
         return rootApi.root();

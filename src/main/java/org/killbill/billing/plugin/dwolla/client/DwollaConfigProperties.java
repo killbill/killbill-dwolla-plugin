@@ -30,6 +30,7 @@ public class DwollaConfigProperties {
     private final String clientId;
     private final String clientSecret;
     private final String senderPin;
+    private final String accountId;
 
     private String accessToken;
     private final String refreshToken;
@@ -43,6 +44,7 @@ public class DwollaConfigProperties {
         this.clientId = properties.getProperty(PROPERTY_PREFIX + "clientId");
         this.clientSecret = properties.getProperty(PROPERTY_PREFIX + "clientSecret");
         this.senderPin = properties.getProperty(PROPERTY_PREFIX + "senderPin");
+        this.accountId = properties.getProperty(PROPERTY_PREFIX + "accountId");
 
         this.accessToken = properties.getProperty(PROPERTY_PREFIX + "accessToken");
         this.refreshToken = properties.getProperty(PROPERTY_PREFIX + "refreshToken");
@@ -70,6 +72,10 @@ public class DwollaConfigProperties {
 
     public String getSenderPin() {
         return senderPin;
+    }
+
+    public String getAccountId() {
+        return accountId;
     }
 
     public String getAccessToken() {

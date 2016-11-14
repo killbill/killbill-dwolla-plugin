@@ -16,10 +16,17 @@
 
 package org.killbill.billing.plugin.dwolla;
 
+import com.dwolla.java.sdk.responses.TokenResponse;
 import com.google.common.collect.Lists;
 import io.swagger.client.ApiClient;
 import io.swagger.client.ApiException;
-import io.swagger.client.model.*;
+import io.swagger.client.model.CatalogResponse;
+import io.swagger.client.model.FundingSource;
+import io.swagger.client.model.FundingSourceListResponse;
+import io.swagger.client.model.HalLink;
+import io.swagger.client.model.Money;
+import io.swagger.client.model.Transfer;
+import io.swagger.client.model.Unit$;
 import org.killbill.billing.account.api.Account;
 import org.killbill.billing.catalog.api.Currency;
 import org.killbill.billing.osgi.libs.killbill.OSGIConfigPropertiesService;
@@ -29,6 +36,7 @@ import org.killbill.billing.plugin.TestUtils;
 import org.killbill.billing.plugin.TestWithEmbeddedDBBase;
 import org.killbill.billing.plugin.dwolla.api.DwollaPaymentPluginApi;
 import org.killbill.billing.plugin.dwolla.client.DwollaClient;
+import org.killbill.billing.plugin.dwolla.client.DwollaConfigProperties;
 import org.killbill.billing.plugin.dwolla.core.DwollaActivator;
 import org.killbill.billing.plugin.dwolla.core.DwollaNotificationHandler;
 import org.killbill.billing.plugin.dwolla.dao.DwollaDao;
@@ -39,7 +47,9 @@ import org.mockito.Mockito;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -48,8 +58,10 @@ public abstract class TestRemoteBase extends TestWithEmbeddedDBBase {
     public static final String DEFAULT_COUNTRY = "US";
     public static final Currency DEFAULT_CURRENCY = Currency.USD;
     public static final UUID TENANT_ID = UUID.randomUUID();
-    public static final String ACCESS_TOKEN = "US";
-    public static final String REFRESH_TOKEN = "US";
+    public static final String  ACCOUNT_ID = UUID.randomUUID().toString();
+    public static final String WL_ACCESS_TOKEN = UUID.randomUUID().toString();
+    public static final String WL_REFRESH_TOKEN = UUID.randomUUID().toString();
+    public static final String DD_ACCESS_TOKEN = UUID.randomUUID().toString();
 
     protected CallContext context;
     protected Account account;
@@ -65,10 +77,6 @@ public abstract class TestRemoteBase extends TestWithEmbeddedDBBase {
 
         final Clock clock = new DefaultClock();
         mockDwollaClient();
-
-        // mock on each test case
-        // apiClient.invokeAPI(path, "POST", queryParams, postBody, headerParams, formParams, accept, contentType, this.authNames);
-        // apiClient.deserialize(ex1, "", Transfer.class):null
 
         context = Mockito.mock(CallContext.class);
         Mockito.when(context.getTenantId()).thenReturn(TENANT_ID);
@@ -107,6 +115,10 @@ public abstract class TestRemoteBase extends TestWithEmbeddedDBBase {
         )).thenReturn("{}");
 
 
+        final DwollaConfigProperties configProperties = Mockito.mock(DwollaConfigProperties.class);
+        Mockito.when(configProperties.getAccountId()).thenReturn(ACCOUNT_ID);
+        Mockito.when(client.getConfigProperties()).thenReturn(configProperties);
+
         final FundingSource fundingSource = new FundingSource();
         fundingSource.setId("692486f8-29f6-4516-a6a5-c69fd2ce854c");
         fundingSource.setStatus("verified");
@@ -116,6 +128,17 @@ public abstract class TestRemoteBase extends TestWithEmbeddedDBBase {
         links.put("self", self);
         fundingSource.setLinks(links);
         Mockito.when(apiClient.deserialize(Mockito.anyString(), Mockito.anyString(), Mockito.eq(FundingSource.class))).thenReturn(fundingSource);
+
+
+        final FundingSourceListResponse fundingSourceList = new FundingSourceListResponse();
+        final Map<String, List<Map<String, Object>>> embedded = new HashMap<String, List<Map<String, Object>>>();
+        final List<Map<String, Object>> sources = new ArrayList<Map<String, Object>>();
+        final Map<String, Object> element = new HashMap<String, Object>();
+        element.put("id", "https://api.dwolla.com/funding-sources/625486f8-29f6-4516-a6a5-c69fd2ce85aa");
+        sources.add(element);
+        embedded.put("funding-sources", sources);
+        fundingSourceList.setEmbedded(embedded);
+        Mockito.when(apiClient.deserialize(Mockito.anyString(), Mockito.anyString(), Mockito.eq(FundingSourceListResponse.class))).thenReturn(fundingSourceList);
 
         final CatalogResponse rootInfo = new CatalogResponse();
         final Map<String, HalLink> accountLinks = new HashMap<String, HalLink>();
@@ -139,12 +162,18 @@ public abstract class TestRemoteBase extends TestWithEmbeddedDBBase {
 
         Mockito.when(apiClient.deserialize(Mockito.anyString(), Mockito.anyString(), Mockito.eq(Transfer.class))).thenReturn(transfer);
 
+        TokenResponse response = new TokenResponse();
+        response.access_token = DD_ACCESS_TOKEN;
+        response.refresh_token = UUID.randomUUID().toString();
+
+        Mockito.when(client.getUserToken(Mockito.anyString())).thenReturn(response);
     }
 
     @BeforeMethod
     @Override
     public void setUpBeforeMethod() throws Exception {
         super.setUpBeforeMethod();
-        dao.addTokens(ACCESS_TOKEN, REFRESH_TOKEN, TENANT_ID);
+        dao.addTokens(WL_ACCESS_TOKEN, WL_REFRESH_TOKEN, ACCOUNT_ID, TENANT_ID);
+        dao.addTokens(DD_ACCESS_TOKEN, UUID.randomUUID().toString(), account.getId().toString(), TENANT_ID);
     }
 }

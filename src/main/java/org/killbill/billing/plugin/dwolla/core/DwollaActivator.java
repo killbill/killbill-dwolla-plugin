@@ -49,7 +49,7 @@ public class DwollaActivator extends KillbillActivatorBase {
         registerPaymentPluginApi(context, pluginApi);
 
         // Register the servlet
-        final DwollaServlet dwollaServlet = new DwollaServlet();
+        final DwollaServlet dwollaServlet = new DwollaServlet(dao, client.getConfigProperties(), logService, killbillAPI);
         registerServlet(context, dwollaServlet);
     }
 

@@ -36,7 +36,7 @@ public class Keys {
 	public static final org.jooq.UniqueKey<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaPaymentMethodsRecord> KEY_DWOLLA_PAYMENT_METHODS_DWOLLA_PAYMENT_METHODS_KB_PAYMENT_ID = UniqueKeys0.KEY_DWOLLA_PAYMENT_METHODS_DWOLLA_PAYMENT_METHODS_KB_PAYMENT_ID;
 	public static final org.jooq.UniqueKey<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaResponsesRecord> KEY_DWOLLA_RESPONSES_PRIMARY = UniqueKeys0.KEY_DWOLLA_RESPONSES_PRIMARY;
 	public static final org.jooq.UniqueKey<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaTokensRecord> KEY_DWOLLA_TOKENS_PRIMARY = UniqueKeys0.KEY_DWOLLA_TOKENS_PRIMARY;
-	public static final org.jooq.UniqueKey<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaTokensRecord> KEY_DWOLLA_TOKENS_DWOLLA_TOKENS_TENANT_ID = UniqueKeys0.KEY_DWOLLA_TOKENS_DWOLLA_TOKENS_TENANT_ID;
+	public static final org.jooq.UniqueKey<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaTokensRecord> KEY_DWOLLA_TOKENS_DWOLLA_TOKENS_ACCOUNT_TENANT_ID = UniqueKeys0.KEY_DWOLLA_TOKENS_DWOLLA_TOKENS_ACCOUNT_TENANT_ID;
 
 	// -------------------------------------------------------------------------
 	// FOREIGN KEY definitions
@@ -61,6 +61,6 @@ public class Keys {
 		public static final org.jooq.UniqueKey<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaPaymentMethodsRecord> KEY_DWOLLA_PAYMENT_METHODS_DWOLLA_PAYMENT_METHODS_KB_PAYMENT_ID = createUniqueKey(org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaPaymentMethods.DWOLLA_PAYMENT_METHODS, org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaPaymentMethods.DWOLLA_PAYMENT_METHODS.KB_PAYMENT_METHOD_ID);
 		public static final org.jooq.UniqueKey<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaResponsesRecord> KEY_DWOLLA_RESPONSES_PRIMARY = createUniqueKey(org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaResponses.DWOLLA_RESPONSES, org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaResponses.DWOLLA_RESPONSES.RECORD_ID);
 		public static final org.jooq.UniqueKey<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaTokensRecord> KEY_DWOLLA_TOKENS_PRIMARY = createUniqueKey(org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaTokens.DWOLLA_TOKENS, org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaTokens.DWOLLA_TOKENS.RECORD_ID);
-		public static final org.jooq.UniqueKey<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaTokensRecord> KEY_DWOLLA_TOKENS_DWOLLA_TOKENS_TENANT_ID = createUniqueKey(org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaTokens.DWOLLA_TOKENS, org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaTokens.DWOLLA_TOKENS.KB_TENANT_ID);
+		public static final org.jooq.UniqueKey<org.killbill.billing.plugin.dwolla.dao.gen.tables.records.DwollaTokensRecord> KEY_DWOLLA_TOKENS_DWOLLA_TOKENS_ACCOUNT_TENANT_ID = createUniqueKey(org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaTokens.DWOLLA_TOKENS, org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaTokens.DWOLLA_TOKENS.ACCOUNT_ID, org.killbill.billing.plugin.dwolla.dao.gen.tables.DwollaTokens.DWOLLA_TOKENS.KB_TENANT_ID);
 	}
 }

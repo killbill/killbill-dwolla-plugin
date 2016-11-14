@@ -25,8 +25,9 @@ create table dwolla_payment_methods (
     record_id int(11) unsigned not null auto_increment
   , kb_account_id char(36) not null
   , kb_payment_method_id char(36) not null
-  , funding_source varchar(255) default null
-  , customer_id varchar(255) default null
+  , funding_source varchar(64) default null
+  , customer_id varchar(64) default null
+  , account_id varchar(64) default null
   , is_default boolean not null default false
   , is_deleted boolean not null default false
   , additional_data longtext default null
@@ -42,12 +43,13 @@ create table dwolla_tokens (
     record_id int(11) unsigned not null auto_increment
   , access_token char(64) not null
   , refresh_token char(64) not null
+  , account_id char(64) not null
   , created_date datetime not null
-  , updated_date datetime not null
+  , updated_date datetime default null
   , kb_tenant_id char(36) not null
   , primary key(record_id)
 ) /*! CHARACTER SET utf8 COLLATE utf8_bin */;
-create unique index dwolla_tokens_tenant_id on dwolla_tokens(kb_tenant_id);
+create unique index dwolla_tokens_account_tenant_id on dwolla_tokens(account_id, kb_tenant_id);
 
 drop table if exists dwolla_notifications;
 create table dwolla_notifications (

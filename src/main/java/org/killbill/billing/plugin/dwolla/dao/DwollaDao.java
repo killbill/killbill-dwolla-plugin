@@ -18,7 +18,6 @@ package org.killbill.billing.plugin.dwolla.dao;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.annotations.VisibleForTesting;
 import io.swagger.client.model.Transfer;
 import io.swagger.client.model.TransferFailure;
 import io.swagger.client.model.Webhook;
@@ -29,7 +28,6 @@ import org.jooq.impl.DSL;
 import org.killbill.billing.catalog.api.Currency;
 import org.killbill.billing.payment.api.PluginProperty;
 import org.killbill.billing.payment.api.TransactionType;
-import org.killbill.billing.payment.plugin.api.PaymentPluginStatus;
 import org.killbill.billing.plugin.dao.payment.PluginPaymentDao;
 import org.killbill.billing.plugin.dwolla.api.DwollaPaymentPluginApi;
 import org.killbill.billing.plugin.dwolla.client.TransferStatus;
@@ -67,6 +65,7 @@ public class DwollaDao extends PluginPaymentDao<DwollaResponsesRecord, DwollaRes
 
         /* Extract and remove known values from the properties map that will become "additional data" */
         final String customerId            = clonedProperties.remove(DwollaPaymentPluginApi.PROPERTY_CUSTOMER_ID);
+        final String accountId             = clonedProperties.remove(DwollaPaymentPluginApi.PROPERTY_ACCOUNT_ID);
         final String fundingSource         = clonedProperties.remove(DwollaPaymentPluginApi.PROPERTY_FUNDING_SOURCE_ID);
 
         /* Calculate the additional data to store */
@@ -83,6 +82,7 @@ public class DwollaDao extends PluginPaymentDao<DwollaResponsesRecord, DwollaRes
                                         DWOLLA_PAYMENT_METHODS.KB_PAYMENT_METHOD_ID,
                                         DWOLLA_PAYMENT_METHODS.FUNDING_SOURCE,
                                         DWOLLA_PAYMENT_METHODS.CUSTOMER_ID,
+                                        DWOLLA_PAYMENT_METHODS.ACCOUNT_ID,
                                         DWOLLA_PAYMENT_METHODS.IS_DEFAULT,
                                         DWOLLA_PAYMENT_METHODS.IS_DELETED,
                                         DWOLLA_PAYMENT_METHODS.ADDITIONAL_DATA,
@@ -93,6 +93,7 @@ public class DwollaDao extends PluginPaymentDao<DwollaResponsesRecord, DwollaRes
                                         kbPaymentMethodId.toString(),
                                         fundingSource,
                                         customerId,
+                                        accountId,
                                         fromBoolean(isDefault),
                                         FALSE,
                                         additionalData,
@@ -105,9 +106,9 @@ public class DwollaDao extends PluginPaymentDao<DwollaResponsesRecord, DwollaRes
                 });
     }
 
-    @VisibleForTesting
     public void addTokens(final String accessToken,
                           final String refreshToken,
+                          final String dwAccountId,
                           final UUID tenantId) throws SQLException {
 
         execute(dataSource.getConnection(),
@@ -120,11 +121,13 @@ public class DwollaDao extends PluginPaymentDao<DwollaResponsesRecord, DwollaRes
                                         DWOLLA_TOKENS.REFRESH_TOKEN,
                                         DWOLLA_TOKENS.CREATED_DATE,
                                         DWOLLA_TOKENS.UPDATED_DATE,
-                                        DWOLLA_NOTIFICATIONS.KB_TENANT_ID)
+                                        DWOLLA_TOKENS.ACCOUNT_ID,
+                                        DWOLLA_TOKENS.KB_TENANT_ID)
                                 .values(accessToken,
                                         refreshToken,
                                         toTimestamp(DateTime.now()),
                                         toTimestamp(DateTime.now()),
+                                        dwAccountId,
                                         tenantId.toString())
                                 .execute();
                         return null;
@@ -132,7 +135,7 @@ public class DwollaDao extends PluginPaymentDao<DwollaResponsesRecord, DwollaRes
                 });
     }
 
-    public DwollaTokensRecord getTokens(final UUID kbTenantId) throws SQLException {
+    public DwollaTokensRecord getTokens(final String dwAccountId, final UUID kbTenantId) throws SQLException {
         return execute(dataSource.getConnection(),
                 new WithConnectionCallback<DwollaTokensRecord>() {
                     @Override
@@ -140,13 +143,14 @@ public class DwollaDao extends PluginPaymentDao<DwollaResponsesRecord, DwollaRes
                         return DSL.using(conn, dialect, settings)
                                 .selectFrom(DWOLLA_TOKENS)
                                 .where(DWOLLA_TOKENS.KB_TENANT_ID.equal(kbTenantId.toString()))
+                                .and(DWOLLA_TOKENS.ACCOUNT_ID.equal(dwAccountId))
                                 .orderBy(DWOLLA_TOKENS.RECORD_ID.desc())
                                 .fetchOne();
                     }
                 });
     }
 
-    public void updateTokens(final String accessToken, final String refreshToken, final UUID kbTenantId) throws SQLException {
+    public void updateTokens(final String accessToken, final String refreshToken, final String dwAccountId, final UUID kbTenantId) throws SQLException {
         execute(dataSource.getConnection(),
                 new WithConnectionCallback<Void>() {
                     @Override
@@ -159,7 +163,8 @@ public class DwollaDao extends PluginPaymentDao<DwollaResponsesRecord, DwollaRes
                                                 .update(DWOLLA_TOKENS)
                                                 .set(DWOLLA_TOKENS.ACCESS_TOKEN, accessToken)
                                                 .set(DWOLLA_TOKENS.REFRESH_TOKEN, refreshToken)
-                                                .where(DWOLLA_TOKENS.KB_TENANT_ID.equal(kbTenantId.toString()))
+                                                .where(DWOLLA_TOKENS.ACCOUNT_ID.equal(dwAccountId))
+                                                .and(DWOLLA_TOKENS.KB_TENANT_ID.equal(kbTenantId.toString()))
                                                 .execute();
                                     }
                                 });
