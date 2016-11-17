@@ -10,7 +10,7 @@ Kill Bill compatibility
 
 | Plugin version | Kill Bill version |
 | -------------: | ----------------: |
-| 0.1.y          | 0.17.z            |
+| 0.1.y          | 0.18.z            |
 
 Requirements
 ------------
@@ -51,6 +51,11 @@ curl -v \
 ```
 
 A *[Webhook Subscription](https://docsv2.dwolla.com/#webhook-subscriptions)* is needed to receive Dwolla notifications.
+
+Build
+-----
+
+To build the plugin locally, see https://github.com/Dwolla/dwolla-swagger-java/blob/master/README.md.
 
 Configuration
 -------------
