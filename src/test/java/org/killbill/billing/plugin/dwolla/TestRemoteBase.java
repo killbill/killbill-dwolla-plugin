@@ -72,6 +72,7 @@ public abstract class TestRemoteBase extends TestWithEmbeddedDBBase {
     protected DwollaNotificationHandler notificationHandler;
 
     @BeforeClass(groups = "slow")
+    @Override
     public void setUpBeforeClass() throws Exception {
         super.setUpBeforeClass();
 
@@ -80,11 +81,6 @@ public abstract class TestRemoteBase extends TestWithEmbeddedDBBase {
 
         context = Mockito.mock(CallContext.class);
         Mockito.when(context.getTenantId()).thenReturn(TENANT_ID);
-
-        account = TestUtils.buildAccount(DEFAULT_CURRENCY, DEFAULT_COUNTRY);
-        killbillApi = TestUtils.buildOSGIKillbillAPI(account);
-
-        TestUtils.buildPaymentMethod(account.getId(), account.getPaymentMethodId(), DwollaActivator.PLUGIN_NAME, killbillApi);
 
         dao = new DwollaDao(embeddedDB.getDataSource());
 
@@ -169,10 +165,16 @@ public abstract class TestRemoteBase extends TestWithEmbeddedDBBase {
         Mockito.when(client.getUserToken(Mockito.anyString())).thenReturn(response);
     }
 
-    @BeforeMethod
+    @BeforeMethod(groups = "slow")
     @Override
     public void setUpBeforeMethod() throws Exception {
         super.setUpBeforeMethod();
+
+        account = TestUtils.buildAccount(DEFAULT_CURRENCY, DEFAULT_COUNTRY);
+        killbillApi = TestUtils.buildOSGIKillbillAPI(account);
+
+        TestUtils.buildPaymentMethod(account.getId(), account.getPaymentMethodId(), DwollaActivator.PLUGIN_NAME, killbillApi);
+
         dao.addTokens(WL_ACCESS_TOKEN, WL_REFRESH_TOKEN, ACCOUNT_ID, TENANT_ID);
         dao.addTokens(DD_ACCESS_TOKEN, UUID.randomUUID().toString(), account.getId().toString(), TENANT_ID);
     }

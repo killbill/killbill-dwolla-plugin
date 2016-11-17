@@ -59,7 +59,7 @@ public class TestDwollaPaymentPluginApi extends TestRemoteBase {
     private final static String CODE = UUID.randomUUID().toString();
     private InOrder inOrder;
 
-    @BeforeClass
+    @BeforeClass(groups = "slow")
     @Override
     public void setUpBeforeClass() throws Exception {
         super.setUpBeforeClass();
